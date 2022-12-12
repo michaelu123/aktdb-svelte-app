@@ -46,7 +46,7 @@
 			url: url,
 			hdrs: hdrs
 		});
-		let nextPage = '/aktdb/member/20';
+		let nextPage = '/aktdb/members';
 		if (from.startsWith('?from=')) {
 			nextPage = '/aktdb' + from.substring(6);
 		}
