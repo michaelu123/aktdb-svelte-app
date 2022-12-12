@@ -20,19 +20,18 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
-	console.log("am1", $membersState);
-	search= $membersState.search;
-	mustBeActive  = $membersState.mustBeActive;
+	console.log('am1', $membersState);
+	search = $membersState.search;
+	mustBeActive = $membersState.mustBeActive;
 	offset = $membersState.offset;
 	limit = $membersState.limit;
-
 	const dataTableModel = writable({
 		source: members,
 		filtered: members,
 		selection: [],
 		search: search,
 		mustBeActive: mustBeActive,
-		sort: '',
+		sort: 'last_name',
 		filter: dataFilter,
 		pagination: { offset: offset, limit: limit, size: 0, amounts: [10, 20, 50, 100, 500] }
 	});
@@ -45,6 +44,7 @@
 	async function selectRow(row) {
 		console.log('am2 selrow', row);
 		let member = { ...row };
+		if (!member.with_details) return;
 		membersState.set({
 			search: $dataTableModel.search,
 			mustBeActive: $dataTableModel.mustBeActive,
@@ -53,8 +53,22 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		console.log("am3 save", $membersState);
-		await goto('/aktdb/member/' + member.id + "?from=/aktdb/members");
+		console.log('am3 save', $membersState);
+		await goto('/aktdb/member/' + member.id + '?from=/aktdb/members');
+	}
+
+	async function newMember() {
+		console.log('am4 newmem');
+		membersState.set({
+			search: $dataTableModel.search,
+			mustBeActive: $dataTableModel.mustBeActive,
+			members: $dataTableModel.source,
+			member: null,
+			offset: $dataTableModel.pagination.offset,
+			limit: $dataTableModel.pagination.limit
+		});
+		console.log('am5 save', $membersState);
+		await goto('/aktdb/newmember?from=/aktdb/members');
 	}
 
 	function dataFilter(store) {
@@ -89,28 +103,33 @@
 				<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
 						<thead on:click={(e) => { dataTableSort(e, dataTableModel) }} on:keypress>
 							<tr>
+								<!--
 								<th><input type="checkbox" on:click={(e) => { dataTableSelectAll(e, dataTableModel) }} /></th>
 								<th data-sort="id">ID</th>
+								-->
 								<th data-sort="last_name">Nachname</th>
 								<th data-sort="first_name">Vorname</th>
 								<th data-sort="active">Aktiv</th>
 								<th data-sort="address">PLZ</th>
 								<th data-sort="birthday">Geburtsjahr</th>
+								<th data-sort="gender">Geschlecht</th>
 								<th data-sort="latest_first_aid_training">Letzter EHK</th>
 								<th data-sort="next_first_aid_training">Nächster EHK</th>
 								<th data-sort="responded_to_questionaire_at">Fragebogen</th>
-								<th>Logging</th>
+								<!-- <th>Logging</th> -->
 							</tr>
 						</thead>
 						<tbody>
 							{#each $dataTableModel.filtered as row, rowIndex}
 								<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1} on:click={(e) => {selectRow(row)}}>
+								<!--
 									<td role="gridcell" aria-colindex={1} tabindex="0">
 										<input type="checkbox" bind:checked={row.dataTableChecked} />
 									</td>
 									<td role="gridcell" aria-colindex={2} tabindex="0">
 										<em class="opacity-50">{row.id}</em>
 									</td>
+								-->
 									<td role="gridcell" aria-colindex={3} tabindex="0">
 										{row.last_name}
 									</td>
@@ -127,6 +146,9 @@
 									<td role="gridcell" aria-colindex={7} tabindex="0">
 										{row.birthday || ""}
 									</td>
+									<td role="gridcell" aria-colindex={7} tabindex="0">
+										{row.gender || ""}
+									</td>
 									<td role="gridcell" aria-colindex={8} tabindex="0">
 										{row.latest_first_aid_training || ""}
 									</td>
@@ -136,9 +158,11 @@
 									<td role="gridcell" aria-colindex={9} tabindex="0">
 										{row.responded_to_questionaire_at || ""}
 									</td>
+								<!--
 									<td role="gridcell" aria-colindex={10} tabindex="0" class="table-cell-fit">
 										<button class="btn btn-ghost-surface btn-sm" on:click={()=>{console.log(row,rowIndex)}}>Console Log</button>
 									</td>
+								-->
 								</tr>
 							{/each}
 						</tbody>
@@ -149,4 +173,7 @@
 			<Paginator bind:settings={$dataTableModel.pagination} />
 		</div>
 	</section>
+</div>
+<div>
+	<button class="btn bg-gray-400 mt-4" on:click={newMember}>Neuer Eintrag</button>
 </div>

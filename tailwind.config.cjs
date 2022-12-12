@@ -2,7 +2,6 @@ const config = {
 	darkmode: 'class',
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
-		require('@tailwindcss/forms'),
 		require('path').join(require.resolve('@brainandbones/skeleton'), '../**/*.{html,js,svelte,ts}')
 	],
 	theme: {
@@ -22,6 +21,7 @@ const config = {
 
 	plugins: [
 		require('tailwindcss-debug-screens'),
+		require('@tailwindcss/forms'),
 		require('@brainandbones/skeleton/tailwind/theme.cjs')
 	]
 };

@@ -17,13 +17,18 @@ export async function load({ fetch, params }) {
 	unsub();
 	let members = state.members;
 	if (members) {
-		console.log('2ld use state', state);
+		console.log('2ld use state', { ...state });
 		let member = state.member;
 		if (member) {
 			// saved member from MemberForm
-			console.log('3ld use state member');
-			let i = members.findIndex((m) => m.id == member.id);
-			members[i] = member;
+			console.log('3ld use state member', member.isNew);
+			if (member.isNew) {
+				members.push(member);
+				member.isNew = false;
+			} else {
+				let i = members.findIndex((m) => m.id == member.id);
+				members[i] = member;
+			}
 			state.member = null;
 		}
 		return { members: state.members };

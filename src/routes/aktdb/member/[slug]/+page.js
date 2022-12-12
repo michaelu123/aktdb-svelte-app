@@ -2,7 +2,7 @@
 
 /** @type {import('./$types').PageLoad} */
 import { redirect } from '@sveltejs/kit';
-import { credsStore } from '../../stores.js';
+import { credsStore, membersState } from '../../stores.js';
 
 export async function load({ fetch, params }) {
 	let creds;
@@ -13,7 +13,20 @@ export async function load({ fetch, params }) {
 		throw redirect(307, '/aktdb/login?from=/member/' + params.slug);
 	}
 	const url = creds.url;
-	const urlReadMember = url + "/api/member/" + params.slug + "?token=" + creds.token;
+	const id = +params.slug;
+	const urlReadMember = url + '/api/member/' + params.slug + '?token=' + creds.token;
+
+	let state; // TODO: diesen code drinlassen oder nicht?
+	unsub = membersState.subscribe((v) => (state = v));
+	unsub();
+	let i = -1;
+	let members = state.members;
+	if (members) {
+		i = members.findIndex((m) => m.id == id);
+		if (i >= 0) {
+			return { member: members[i] };
+		}
+	}
 
 	console.log('2ld url', urlReadMember);
 	const resp = await fetch(urlReadMember, {
@@ -26,6 +39,9 @@ export async function load({ fetch, params }) {
 		if (res[key] == null) {
 			res[key] = '';
 		}
+	}
+	if (i >= 0) {  // TODO ??
+		members[i] = res;
 	}
 	return {
 		member: res
