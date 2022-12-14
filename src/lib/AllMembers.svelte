@@ -1,11 +1,11 @@
 <script>
-	export let members;
+	let members;
 	let mustBeActive = true;
 	let search;
 	let offset;
 	let limit;
 	import { writable } from 'svelte/store';
-	import { membersState } from '../routes/aktdb/stores.js';
+	import { membersState } from './stores.js';
 	import { onDestroy } from 'svelte';
 	// Components
 	import Paginator from '@brainandbones/skeleton/components/Paginator/Paginator.svelte';
@@ -14,17 +14,33 @@
 	import {
 		dataTableHandler,
 		dataTableSelect,
-		dataTableSelectAll,
 		dataTableSort,
 		tableInteraction,
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
 	console.log('am1', $membersState);
-	search = $membersState.search;
+	members = $membersState.members;
+
+	let member = $membersState.member;
+	if (member) {
+		// saved member from MemberForm
+		console.log('am2 use state member', member.isNew);
+		if (member.isNew) {
+			members.push(member);
+			member.isNew = false;
+		} else {
+			let i = members.findIndex((m) => m.id == member.id);
+			members[i] = member;
+		}
+		$membersState.member = null;
+	}
+
+	search = $membersState.search || "";
 	mustBeActive = $membersState.mustBeActive;
-	offset = $membersState.offset;
-	limit = $membersState.limit;
+	if (mustBeActive == null) mustBeActive = true;
+	offset = $membersState.offset || 0;
+	limit = $membersState.limit || 10;
 	const dataTableModel = writable({
 		source: members,
 		filtered: members,

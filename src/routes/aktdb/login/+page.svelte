@@ -1,9 +1,14 @@
 <script>
+	/** @type {import('./$types').PageData} */
+	export let data;
+	console.log("login data", data);
+	let fetch = data.fetch;
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';
-	import { credsStore } from '../stores.js';
+	import { credsStore, membersState, teamsState } from '../../../lib/stores.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { loadAll } from '$lib/load.js';
 
 	const url = 'https://aktivendb.adfc-muenchen.de';
 	const urlLogin = url + '/auth/login';
@@ -50,6 +55,9 @@
 		if (from.startsWith('?from=')) {
 			nextPage = '/aktdb' + from.substring(6);
 		}
+		const res2 = await loadAll();
+		$membersState.members = res2.members;
+		$teamsState.teams = res2.teams;
 		await goto(nextPage, { replaceState: true });
 	}
 </script>
@@ -77,3 +85,74 @@
 		</form>
 	{/if}
 </main>
+
+<!--
+
+export async function loadAll({ fetch }) {
+	let creds;
+	let unsub = credsStore.subscribe((v) => (creds = v));
+	unsub();
+	console.log('1loadAll', creds);
+	if (creds == null) {
+		throw redirect(307, '/aktdb/login?from=/members');
+	}
+	let state;
+	unsub = membersState.subscribe((v) => (state = v));
+	unsub();
+	let members = state.members;
+	if (members) {
+		console.log('2ld use state', { ...state });
+		let member = state.member;
+		if (member) {
+			// saved member from MemberForm
+			console.log('3ld use state member', member.isNew);
+			if (member.isNew) {
+				members.push(member);
+				member.isNew = false;
+			} else {
+				let i = members.findIndex((m) => m.id == member.id);
+				members[i] = member;
+			}
+			state.member = null;
+		}
+		return { members: state.members };
+	}
+	const url = creds.url;
+	const urlReadMembers = url + '/api/members?token=';
+	console.log('4ld');
+	const respM = await fetch(urlReadMembers + creds.token, {
+		method: 'GET',
+		headers: creds.hdrs
+	});
+	const resM = await respM.json();
+	console.log('5ld res', resM);
+	for (let row of resM) {
+		for (let key of Object.keys(row)) {
+			if (row[key] == null) {
+				row[key] = '';
+			}
+		}
+	}
+
+    const urlReadTeams = url + '/api/project-teams?token=';
+    console.log('6ld');
+    const respT = await fetch(urlReadTeams + creds.token, {
+        method: 'GET',
+        headers: creds.hdrs
+    });
+    const resT = await respT.json();
+    console.log('7ld res', resT);
+    for (let row of resT) {
+        for (let key of Object.keys(row)) {
+            if (row[key] == null) {
+                row[key] = '';
+            }
+        }
+    }
+
+	return {
+		members: resM,
+        teams: resT
+	};
+}
+-->

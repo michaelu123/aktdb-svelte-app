@@ -2,7 +2,7 @@
 
 /** @type {import('./$types').PageLoad} */
 import { redirect } from '@sveltejs/kit';
-import { credsStore, membersState } from '../../stores.js';
+import { credsStore, membersState } from '../../../../lib/stores.js';
 
 export async function load({ fetch, params }) {
 	let creds;
@@ -16,16 +16,13 @@ export async function load({ fetch, params }) {
 	const id = +params.slug;
 	const urlReadMember = url + '/api/member/' + params.slug + '?token=' + creds.token;
 
-	let state; // TODO: diesen code drinlassen oder nicht?
+	let state; 
 	unsub = membersState.subscribe((v) => (state = v));
 	unsub();
 	let i = -1;
 	let members = state.members;
 	if (members) {
 		i = members.findIndex((m) => m.id == id);
-		if (i >= 0) {
-			return { member: members[i] };
-		}
 	}
 
 	console.log('2ld url', urlReadMember);
@@ -33,17 +30,16 @@ export async function load({ fetch, params }) {
 		method: 'GET',
 		headers: creds.hdrs
 	});
-	const res = await resp.json();
-	console.log('3ld res', res);
-	for (let key of Object.keys(res)) {
-		if (res[key] == null) {
-			res[key] = '';
+	const member = await resp.json();
+	console.log('3ld res', member);
+	for (let key of Object.keys(member)) {
+		if (member[key] == null) {
+			member[key] = '';
 		}
 	}
-	if (i >= 0) {  // TODO ??
-		members[i] = res;
+	if (i >= 0) {
+		members[i] = member;
 	}
-	return {
-		member: res
-	};
+	state.member = member;
+	return null;
 }

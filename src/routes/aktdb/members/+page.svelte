@@ -1,6 +1,4 @@
 <script> 
-	/** @type {import('./$types').PageData} */
-	export let data;
 	import AllMembers from "$lib/AllMembers.svelte";
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';
@@ -10,7 +8,7 @@
 	{#if $navigating}
 		<ProgressBar/>
 	{:else}
-		<AllMembers members={data.members}></AllMembers>
+		<AllMembers/>
 	{/if}
 </main>
 

@@ -9,3 +9,10 @@ export let membersState = writable({
 	offset: 0,
     limit: 10
 });
+export let teamsState = writable({
+	search: '',
+	teams: null,
+	team: null,
+	offset: 0,
+	limit: 10
+});

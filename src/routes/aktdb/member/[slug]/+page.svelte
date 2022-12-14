@@ -10,7 +10,7 @@
 	{#if $navigating}
 		<ProgressBar/>
 	{:else}
-		<MemberForm member={data.member} />
+		<MemberForm/>
 	{/if}
 </main>
 

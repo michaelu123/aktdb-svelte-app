@@ -2,7 +2,7 @@
 
 /** @type {import('./$types').PageLoad} */
 import { redirect } from '@sveltejs/kit';
-import { credsStore, membersState } from '../stores.js';
+import { credsStore, membersState } from '../../../lib/stores.js';
 
 export async function load({ fetch, params }) {
 	let creds;
