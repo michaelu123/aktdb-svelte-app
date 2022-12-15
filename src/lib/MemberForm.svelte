@@ -9,9 +9,22 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 	import { eyeIcon, deleteIcon, editIcon } from '$lib/icons.js';
+	import { storeMember } from './load.js';
 
-	let member = $membersState.member;
+	export let data;
 	let is_admin = $credsStore.is_admin;
+	let member = data.member;
+	let i = -1;
+	let members = $membersState.members;
+	if (members) {
+		i = members.findIndex((m) => m.id == member.id);
+		if (i >= 0) {
+			members[i] = member;
+		}
+		$membersState.member = member;
+	}
+
+	let withDetails = member.with_details;
 	let memberChanges = 0;
 	$: if (member) {
 		memberChanges++;
@@ -58,13 +71,13 @@
 		// console.log('isChecked', v, b);
 		return b;
 	}
-	function save() {
-		// TODO DB update
+	async function save() {
 		if (member.id == null) {
 			console.log('post DB', member);
-			member.id = newId++;
+			member.id = await storeMember("POST", member);
 		} else {
 			console.log('push DB', member);
+			await storeMember("PUT", member);
 		}
 		$membersState.member = member;
 		goto('/aktdb/members?from=/member/' + member.id);
@@ -84,8 +97,8 @@
 	$: if (team) {
 		teamChanges++;
 	}
-
-	for (let team of member.project_teams) {
+	const projectTeams = member.project_teams || [];
+	for (let team of projectTeams) {
 		let name = team.name;
 		let link = '/aktdb/team/' + team.id;
 		let role = team.project_team_member.member_role_title;
@@ -150,101 +163,124 @@
 		teamChanges = 0;
 	}
 	async function saveTeam() {
-		if (action == "changing") {
+		console.log('saveTeam', team);
+		if (team.name.length < 2 || team.role.length < 2) {
+			window.alert('Formular unvollständig!');
+			return;
+		}
+		if (action == 'changing') {
 			let i = teams.findIndex((m) => m.name == team.name);
 			teams[i] = team;
 			$dataTableModel.teams = teams;
-			console.log("DB put", team);
-		} else if (action == "adding") {
+			console.log('DB put', team);
+		} else if (action == 'adding') {
 			teams.push(team);
 			teams = teams.sort((a, b) => (a.name < b.name ? -1 : 1));
 			$dataTableModel.teams = teams;
-			console.log("DB post", team);
+			console.log('DB post', team);
 		}
 		team = null;
 		action = null;
 		teamChanges = 0;
+		if (!withDetails) {
+			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
+		}
 	}
 </script>
 
-<div>
-	<form on:submit|preventDefault class="mt-8">
-		{#each Object.keys(textFields) as key (key)}
+{#if withDetails}
+	<div>
+		<form on:submit|preventDefault class="mt-8">
+			{#each Object.keys(textFields) as key (key)}
+				<label class="grid grid-cols-6 items-center m-2">
+					<span class="col-span-2">{textFields[key]}</span>
+					<input
+						class="col-span-4 form-input"
+						type="text"
+						bind:value={member[key]}
+						minlength="2"
+						required
+					/>
+				</label>
+			{/each}
 			<label class="grid grid-cols-6 items-center m-2">
-				<span class="col-span-2">{textFields[key]}</span>
-				<input
-					class="col-span-4 form-input"
-					type="text"
-					bind:value={member[key]}
-					minlength="2"
-					required
-				/>
+				<span class="col-span-2">Geschlecht</span>
+				<select class="col-span-4 form-select" bind:value={member.gender}>
+					<option value="M">M</option>
+					<option value="W">W</option>
+					<option value="">-</option>
+				</select>
 			</label>
-		{/each}
-		<label class="grid grid-cols-6 items-center m-2">
-			<span class="col-span-2">Geschlecht</span>
-			<select class="col-span-4 form-select" bind:value={member.gender}>
-				<option value="M">M</option>
-				<option value="W">W</option>
-				<option value="">-</option>
-			</select>
-		</label>
-		{#each Object.keys(areaFields) as key (key)}
-			<label class="grid grid-cols-6 items-center m-2">
-				<span class="col-span-2">{areaFields[key]}</span>
-				<textarea class="col-span-4 form-input" rows="2" bind:value={member[key]} />
-			</label>
-		{/each}
-		{#each Object.keys(dateFields) as key (key)}
-			<label class="grid grid-cols-6 items-center m-2">
-				<span class="col-span-2">{dateFields[key]}</span>
-				<input
-					type="date"
-					class="col-span-4 form-input"
-					disabled={readOnlyFields[key]}
-					value={member[key]}
-					on:change={(e) => (member[key] = e.target.value)}
-				/>
-			</label>
-		{/each}
-		{#each Object.keys(boolFields) as key (key)}
-			<label class="grid grid-cols-6 items-center m-2">
-				<span class="col-span-2">{boolFields[key]}</span>
-				<input
-					type="checkbox"
-					class="form-input"
-					checked={isChecked(key, member)}
-					disabled={readOnlyFields[key]}
-					on:click={(e) => {
-						member[key] = e.target.checked ? '1' : '0';
-						member = member;
-					}}
-				/>
-			</label>
-		{/each}
-	</form>
+			{#each Object.keys(areaFields) as key (key)}
+				<label class="grid grid-cols-6 items-center m-2">
+					<span class="col-span-2">{areaFields[key]}</span>
+					<textarea class="col-span-4 form-input" rows="2" bind:value={member[key]} />
+				</label>
+			{/each}
+			{#each Object.keys(dateFields) as key (key)}
+				<label class="grid grid-cols-6 items-center m-2">
+					<span class="col-span-2">{dateFields[key]}</span>
+					<input
+						type="date"
+						class="col-span-4 form-input"
+						disabled={readOnlyFields[key]}
+						value={member[key]}
+						on:change={(e) => (member[key] = e.target.value)}
+					/>
+				</label>
+			{/each}
+			{#each Object.keys(boolFields) as key (key)}
+				<label class="grid grid-cols-6 items-center m-2">
+					<span class="col-span-2">{boolFields[key]}</span>
+					<input
+						type="checkbox"
+						class="form-input"
+						checked={isChecked(key, member)}
+						disabled={readOnlyFields[key]}
+						on:click={(e) => {
+							member[key] = e.target.checked ? '1' : '0';
+							member = member;
+						}}
+					/>
+				</label>
+			{/each}
+		</form>
+		<div class="flex my-10">
+			<button
+				class="btn bg-gray-400 mr-8"
+				on:click={() => {
+					$membersState.member = null;
+					goto('/aktdb/members?from=/member/' + member.id);
+				}}>{memberChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
+			>
+			<button
+				disabled={memberChanges <= 1}
+				class="btn bg-gray-400 mr-8"
+				on:click={() => save(member)}>Speichern</button
+			>
+			{#if is_admin}
+				<button
+					class="btn bg-gray-400 mr-8"
+					on:click={() => {
+						remove(member);
+					}}>Mitglied löschen</button
+				>
+				<button class="btn bg-gray-400 mr-8" on:click={addTeam}>Mitgliedschaft hinzufügen</button>
+			{/if}
+		</div>
+	</div>
+{:else}
 	<div class="flex my-10">
 		<button
 			class="btn bg-gray-400 mr-8"
 			on:click={() => {
 				$membersState.member = null;
 				goto('/aktdb/members?from=/member/' + member.id);
-			}}>{memberChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
+			}}>Zurück</button
 		>
-		<button disabled={memberChanges <= 1} class="btn bg-gray-400 mr-8" on:click={() => save(member)}
-			>Speichern</button
-		>
-		{#if is_admin}
-			<button
-				class="btn bg-gray-400 mr-8"
-				on:click={() => {
-					remove(member);
-				}}>Mitglied löschen</button
-			>
-		{/if}
-		<button class="btn bg-gray-400 mr-8" on:click={addTeam}>Mitgliedschaft hinzufügen</button>
+		<button class="btn bg-gray-400" on:click={addTeam}>Mitgliedschaft hinzufügen</button>
 	</div>
-</div>
+{/if}
 <div>
 	<section class="card !bg-accent-500/5">
 		<h2 class="py-5">Mitgliedschaften</h2>
@@ -281,7 +317,7 @@
 								<input disabled class="col-span-4 form-input" type="text" value={team.role} />
 							{:else}
 								<select class="col-span-4 form-select" bind:value={team.role}>
-									{#if action == "adding"}
+									{#if action == 'adding'}
 										<option value="-">-</option>
 									{/if}
 									<option value="Mitglied">Mitglied</option>
@@ -303,7 +339,9 @@
 			{/if}
 		</div>
 		{#if teamChanges > 1}
-			<button on:click={saveTeam} class="btn">{action=="adding" ? "Jetzt hinzufügen" : "Jetzt ändern"}</button>
+			<button on:click={saveTeam} class="btn bg-gray-400"
+				>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
+			>
 		{/if}
 	</section>
 	<section class="card !bg-accent-500/5">

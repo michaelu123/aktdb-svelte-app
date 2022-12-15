@@ -2,7 +2,7 @@
 
 /** @type {import('./$types').PageLoad} */
 import { redirect } from '@sveltejs/kit';
-import { credsStore, membersState } from '../../../lib/stores.js';
+import { credsStore } from '../../../lib/stores.js';
 
 export async function load({ fetch, params }) {
 	let creds;
@@ -12,5 +12,6 @@ export async function load({ fetch, params }) {
 	if (creds == null) {
 		throw redirect(307, '/aktdb/login?from=/members');
 	}
-	return {};
+	let member = { id: null, isNew: true, gender: "", active:true, with_details: true };
+	return { member: member, fetch: fetch, params: params };
 }

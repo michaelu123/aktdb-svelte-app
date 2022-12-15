@@ -1,11 +1,12 @@
 <script>
 	let members;
 	let mustBeActive = true;
+	let withDetails = true;
 	let search;
 	let offset;
 	let limit;
 	import { writable } from 'svelte/store';
-	import { membersState } from './stores.js';
+	import { credsStore, membersState } from './stores.js';
 	import { onDestroy } from 'svelte';
 	// Components
 	import Paginator from '@brainandbones/skeleton/components/Paginator/Paginator.svelte';
@@ -22,6 +23,7 @@
 	console.log('am1', $membersState);
 	members = $membersState.members;
 
+	let is_admin = $credsStore.is_admin;
 	let member = $membersState.member;
 	if (member) {
 		// saved member from MemberForm
@@ -39,6 +41,8 @@
 	search = $membersState.search || "";
 	mustBeActive = $membersState.mustBeActive;
 	if (mustBeActive == null) mustBeActive = true;
+	withDetails = $membersState.withDetails;
+	if (withDetails == null) withDetails = true;
 	offset = $membersState.offset || 0;
 	limit = $membersState.limit || 10;
 	const dataTableModel = writable({
@@ -47,6 +51,7 @@
 		selection: [],
 		search: search,
 		mustBeActive: mustBeActive,
+		withDetails: withDetails,
 		sort: 'last_name',
 		filter: dataFilter,
 		pagination: { offset: offset, limit: limit, size: 0, amounts: [10, 20, 50, 100, 500] }
@@ -60,10 +65,11 @@
 	async function selectRow(row) {
 		console.log('am2 selrow', row);
 		let member = { ...row };
-		if (!member.with_details) return;
+		// if (!member.with_details) return;
 		membersState.set({
 			search: $dataTableModel.search,
 			mustBeActive: $dataTableModel.mustBeActive,
+			withDetails: $dataTableModel.withDetails,
 			members: $dataTableModel.source,
 			member: member,
 			offset: $dataTableModel.pagination.offset,
@@ -78,6 +84,7 @@
 		membersState.set({
 			search: $dataTableModel.search,
 			mustBeActive: $dataTableModel.mustBeActive,
+			withDetails: $dataTableModel.withDetails,
 			members: $dataTableModel.source,
 			member: null,
 			offset: $dataTableModel.pagination.offset,
@@ -93,6 +100,9 @@
 			if (store.mustBeActive && +rowObj.active == 0) {
 				return false;
 			}
+			if (store.withDetails && !rowObj.with_details) {
+				return false;
+			}
 			if (rowObj.last_name.toLowerCase().includes(formattedSearchTerm)) return true;
 			if (rowObj.first_name.toLowerCase().includes(formattedSearchTerm)) return true;
 			return false;
@@ -105,6 +115,9 @@
 		<!-- Search Input -->
 		<div class="card-header flex">
 			<SlideToggle bind:checked={$dataTableModel.mustBeActive}>Nur Aktive</SlideToggle>
+			{#if !is_admin}
+				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur sichtbare</SlideToggle>
+			{/if}
 			<input
 				bind:value={$dataTableModel.search}
 				type="search"
