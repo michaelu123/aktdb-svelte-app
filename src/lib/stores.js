@@ -11,6 +11,7 @@ export let membersState = writable({
 	limit: 10
 });
 export let teamsState = writable({
+	withDetails: true,
 	search: '',
 	teams: null,
 	team: null,

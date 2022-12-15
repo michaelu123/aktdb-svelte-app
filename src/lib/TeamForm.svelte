@@ -9,104 +9,85 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 	import { eyeIcon, deleteIcon, editIcon } from '$lib/icons.js';
-	import { deleteMember, deleteRelation, storeMember, storeRelation } from './load.js';
+	import { deleteTeam, deleteRelation, storeTeam, storeRelation } from './load.js';
 
 	export let data;
 	let is_admin = $credsStore.is_admin;
-	let member = data.member;
+	let team = data.team;
 	let i = -1;
-	let members = $membersState.members;
-	if (members) {
-		i = members.findIndex((m) => m.id == member.id);
+	let teams = $teamsState.teams;
+	if (teams) {
+		i = teams.findIndex((m) => m.id == team.id);
 		if (i >= 0) {
-			members[i] = member;
+			teams[i] = team;
 		}
-		$membersState.member = member;
+		$teamsState.team = team;
 	}
 
-	let withDetails = member.with_details;
-	let memberChanges = 0;
-	$: if (member) {
-		memberChanges++;
+	let withDetails = team.with_details;
+	let teamChanges = 0;
+	$: if (team) {
+		teamChanges++;
 	}
 	let textFields = {
-		last_name: 'Nachname',
-		first_name: 'Vorname',
-		address: 'PLZ',
-		adfc_id: 'Mitgliedsnr.',
-		birthday: 'Geburtsjahr',
-		email_adfc: 'Email (ADFC)',
-		email_private: 'Email (Privat)',
-		phone_primary: 'Telefon',
-		phone_secondary: 'Telefon (alternativ)',
-		status: 'Status'
+		name: 'Name',
+		email: 'Email',
 	};
 	let areaFields = {
-		interests: 'Interessen',
 		admin_comments: 'Kommentar'
 	};
 	let dateFields = {
-		latest_contact: 'Letzter Kontakt',
-		latest_first_aid_training: 'Letzter EHK',
-		next_first_aid_training: 'Nächster EHK',
-		responded_to_questionaire_at: 'Datum Fragebogen'
 	};
 	let boolFields = {
-		active: 'Aktiv',
-		registered_for_first_aid_training: 'Registriert für EHK',
-		responded_to_questionaire: 'Fragebogen ausgefüllt',
-		user: 'DB User'
+		needs_first_aid_training: 'EHK',
 	};
 	let readOnlyFields = {
-		responded_to_questionaire_at: true,
-		responded_to_questionaire: true,
-		user: true
 	};
 	function isChecked(k, m) {
 		let v = m[k];
 		let b = !(v == null || v === false || v == '' || v == '0');
 		return b;
 	}
-	async function saveMember() {
-		if (member.first_name.length < 2 || member.last_name.length < 2) {
-			window.alert('Bitte Vor- und Nachname eintragen!');
+	async function saveTeam() {
+		if (team.name.length < 2) {
+			window.alert('Bitte Name eintragen!');
 			return;
 		}
-		if (member.id == null) {
-			console.log('post DB', member);
-			member.id = await storeMember('POST', member);
+		if (team.id == null) {
+			console.log('post DB', team);
+			team.id = await storeTeam('POST', team);
 		} else {
-			console.log('push DB', member);
-			await storeMember('PUT', member);
+			console.log('push DB', team);
+			await storeTeam('PUT', team);
 		}
-		$membersState.member = member;
-		goto('/aktdb/members?from=/member/' + member.id);
+		$teamsState.team = team;
+		goto('/aktdb/teams?from=/team/' + team.id);
 	}
-	async function removeMember() {
-		console.log('delete DB', member);
-		await deleteMember(member.id);
-		$membersState.member = null;
-		$membersState.members = $membersState.members.filter((m) => m.id != member.id);
-		goto('/aktdb/members');
+	async function removeTeam() {
+		console.log('delete DB', team);
+		await deleteTeam(team.id);
+		$teamsState.team = null;
+		$teamsState.teams = $teamsState.teams.filter((m) => m.id != team.id);
+		goto('/aktdb/teams');
 	}
 
-	// now for the project_teams
+	// now for the members
 	let relations = [];
 	let relation = null;
 	let relationChanges = 0;
 	$: if (relation) {
 		relationChanges++;
 	}
-	const projectTeams = member.project_teams || [];
-	for (let team of projectTeams) {
-		let name = team.name;
-		let tpm = team.project_team_member;
-		let id = tpm.id;
+	const members = team.members || [];
+	for (let member of members) {
+		let name = member.last_name + ", " + member.first_name;
+		let mpt = member.project_team_member;
+		let id = mpt.id;
 		let memberId = member.id;
 		let teamId = team.id;
-		let link = '/aktdb/team/' + teamId;
-		let role = tpm.member_role_title;
-		let desc = tpm.admin_comments;
+		let link = '/aktdb/member/' + memberId;
+		let role = mpt.member_role_title;
+		let desc = mpt.admin_comments;
 		relations.push({ name: name, link: link, id: id, memberId: memberId, teamId: teamId, role: role, desc: desc, dataTableChecked: false });
 	}
 	relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -125,18 +106,20 @@
 	const unsubscribe = dataTableModel.subscribe((v) => dataTableHandler(v));
 	onDestroy(unsubscribe);
 
-	function possibleTeams(allTeams) {
+	function possibleMembers(allMembers) {
 		let oldRelations = [];
 		for (let relation of relations) {
 			oldRelations.push(relation.name);
 		}
-		let possibleTeams2 = []; // teams of which member is not a member
-		for (let team of allTeams) {
-			if (!oldRelations.includes(team.name)) {
-				possibleTeams2.push(team);
+		let possibleMembers2 = []; // members of which team is not a team
+		console.log("possm", allMembers);
+		for (let member of allMembers) {
+			member.name = member.last_name + ", " + member.first_name;
+			if (!oldRelations.includes(member.name)) {
+				possibleMembers2.push(member);
 			}
 		}
-		return possibleTeams2.sort((a, b) => (a.name < b.name ? -1 : 1));
+		return possibleMembers2.sort((a, b) => (a.name < b.name ? -1 : 1));
 	}
 
 	let action;
@@ -169,7 +152,7 @@
 		relationChanges = 0;
 	}
 	async function saveRelation() {
-		console.log('saveRelation', relation);
+		console.log('saveRelation', {...relation});
 		if (relation.name.length < 2 || relation.role.length < 2) {
 			window.alert('Formular unvollständig!');
 			return;
@@ -181,10 +164,10 @@
 			relations[i] = relation;
 			$dataTableModel.source = relations;
 		} else if (action == 'adding') {
-			// options for new team contain only name, we need team id
-			let x = $teamsState.teams.findIndex((t) => t.name == relation.name);
-			relation.teamId = $teamsState.teams[x].id;
-			relation.memberId = member.id;
+			// options for new member contain only name, we need member id
+			let x = $membersState.members.findIndex((t) => t.name == relation.name);
+			relation.memberId = $membersState.members[x].id;
+			relation.teamId = team.id;
 			console.log('DB post', relation);
 			relation.id = await storeRelation("POST", relation);
 			relations.push(relation);
@@ -195,7 +178,7 @@
 		action = null;
 		relationChanges = 0;
 		if (!withDetails) {
-			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
+			goto('/aktdb/team/' + team.id + '?from=/team/' + team.id, { invalidateAll: true });
 		}
 	}
 </script>
@@ -209,24 +192,16 @@
 					<input
 						class="col-span-4 form-input"
 						type="text"
-						bind:value={member[key]}
+						bind:value={team[key]}
 						minlength="2"
 						required
 					/>
 				</label>
 			{/each}
-			<label class="grid grid-cols-6 items-center m-2">
-				<span class="col-span-2">Geschlecht</span>
-				<select class="col-span-4 form-select" bind:value={member.gender}>
-					<option value="M">M</option>
-					<option value="W">W</option>
-					<option value="">-</option>
-				</select>
-			</label>
 			{#each Object.keys(areaFields) as key (key)}
 				<label class="grid grid-cols-6 items-center m-2">
 					<span class="col-span-2">{areaFields[key]}</span>
-					<textarea class="col-span-4 form-input" rows="2" bind:value={member[key]} />
+					<textarea class="col-span-4 form-input" rows="2" bind:value={team[key]} />
 				</label>
 			{/each}
 			{#each Object.keys(dateFields) as key (key)}
@@ -236,8 +211,8 @@
 						type="date"
 						class="col-span-4 form-input"
 						disabled={readOnlyFields[key]}
-						value={member[key]}
-						on:change={(e) => (member[key] = e.target.value)}
+						value={team[key]}
+						on:change={(e) => (team[key] = e.target.value)}
 					/>
 				</label>
 			{/each}
@@ -247,11 +222,11 @@
 					<input
 						type="checkbox"
 						class="form-input"
-						checked={isChecked(key, member)}
+						checked={isChecked(key, team)}
 						disabled={readOnlyFields[key]}
 						on:click={(e) => {
-							member[key] = e.target.checked ? '1' : '0';
-							member = member;
+							team[key] = e.target.checked ? '1' : '0';
+							team = team;
 						}}
 					/>
 				</label>
@@ -261,21 +236,21 @@
 			<button
 				class="btn bg-gray-400 mr-8"
 				on:click={() => {
-					$membersState.member = null;
-					goto('/aktdb/members?from=/member/' + member.id);
-				}}>{memberChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
+					$teamsState.team = null;
+					goto('/aktdb/teams?from=/team/' + team.id);
+				}}>{teamChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
 			>
 			<button
-				disabled={memberChanges <= 1}
+				disabled={teamChanges <= 1}
 				class="btn bg-gray-400 mr-8"
-				on:click={() => saveMember(member)}>Speichern</button
+				on:click={() => saveTeam(team)}>Speichern</button
 			>
 			{#if is_admin}
 				<button
 					class="btn bg-gray-400 mr-8"
 					on:click={() => {
-						removeMember();
-					}}>Mitglied löschen</button
+						removeTeam();
+					}}>Team löschen</button
 				>
 				<button class="btn bg-gray-400 mr-8" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 			{/if}
@@ -286,8 +261,8 @@
 		<button
 			class="btn bg-gray-400 mr-8"
 			on:click={() => {
-				$membersState.member = null;
-				goto('/aktdb/members?from=/member/' + member.id);
+				$teamsState.team = null;
+				goto('/aktdb/teams?from=/team/' + team.id);
 			}}>Zurück</button
 		>
 		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
@@ -309,16 +284,14 @@
 				<div class="card">
 					<form on:submit|preventDefault class="mx-8 p-8">
 						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">AG/OG</span>
+							<span class="col-span-2">Mitglied</span>
 							{#if action == 'showing' || action == 'changing'}
 								<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
 							{:else}
 								<select class="col-span-4 form-select" bind:value={relation.name}>
 									<option value="-">-</option>
-									{#each possibleTeams($teamsState.teams) as team}
-										{#if team.with_details}
-											<option value={team.name}>{team.name}</option>
-										{/if}
+									{#each possibleMembers($membersState.members) as member}
+										<option value={member.name}>{member.name}</option>
 									{/each}
 								</select>
 							{/if}
@@ -368,7 +341,7 @@
 							<th><input type="checkbox" on:click={(e) => { dataTableSelectAll(e, dataTableModel) }} /></th>
 							<th data-sort="id">ID</th>
 							-->
-							<th>AG/OG</th>
+							<th>Mitglied</th>
 							<th>Funktion</th>
 							<th>Aktion</th>
 						</tr>

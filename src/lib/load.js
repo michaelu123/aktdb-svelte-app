@@ -74,7 +74,27 @@ export async function loadMember(fetch, id) {
 	return member;
 }
 
-const omitFields = ['id', 'updated_at', 'user', 'with_details', 'with_detals'];
+export async function loadTeam(fetch, id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+	const url = baseUrl + '/api/project-team/' + id + '?token=' + creds.token;
+
+	console.log('1loadTeam url', url);
+	const resp = await fetch(url, {
+		method: 'GET',
+		headers: creds.hdrs
+	});
+	const team = await resp.json();
+	console.log('2loadTeam res', team);
+	for (let key of Object.keys(team)) {
+		if (team[key] == null) {
+			team[key] = '';
+		}
+	}
+	return team;
+}
+
+const omitMemberFields = ['id', 'updated_at', 'user', 'with_details', 'with_detals'];
 export async function storeMember(method, member) {
 	let creds = getCreds();
 	const baseUrl = creds.url;
@@ -91,7 +111,7 @@ export async function storeMember(method, member) {
 		}
 	}
 	m['name'] = m.last_name + ', ' + m.first_name;
-	for (let key of omitFields) {
+	for (let key of omitMemberFields) {
 		delete m[key];
 	}
 	console.log('1storeMember', url, method, m);
@@ -118,9 +138,50 @@ export async function deleteMember(id) {
 	console.log('2deleteMember resp', resp);
 }
 
-export async function storeTeam(method, t) {}
+const omitTeamFields = ['id', 'updated_at', 'with_details', 'with_detals'];
+export async function storeTeam(method, team) {
+		let creds = getCreds();
+		const baseUrl = creds.url;
+		let t = { ...team };
 
-export async function storeRelation(method, memberId, relation) {
+		let url = baseUrl + '/api/project-team';
+		if (method == 'PUT') {
+			url += '/' + t.id;
+		}
+		url += '?token=' + creds.token;
+		for (let key of Object.keys(team)) {
+			if (t[key] == '') {
+				t[key] = null;
+			}
+		}
+		for (let key of omitTeamFields) {
+			delete t[key];
+		}
+		console.log('1storeTeam', url, method, t);
+		const resp = await fetch(url, {
+			method: method,
+			headers: creds.hdrs,
+			body: JSON.stringify(t)
+		});
+		const res = await resp.json();
+		console.log('2storeMember res', res);
+		return res.id;
+}
+
+export async function deleteTeam(id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+
+	let url = baseUrl + '/api/project-team/' + id + '?token=' + creds.token;
+	console.log('1deleteTeam', url, id);
+	const resp = await fetch(url, {
+		method: 'DELETE',
+		headers: creds.hdrs
+	});
+	console.log('2deleteTeam resp', resp);
+}
+
+export async function storeRelation(method, relation) {
 	let creds = getCreds();
 	const baseUrl = creds.url;
 
@@ -135,7 +196,7 @@ export async function storeRelation(method, memberId, relation) {
 	else if (relation.role == 'Formales Mitglied') roleId = 3;
 	const r = {
 		admin_comments: relation.desc,
-		member_id: memberId,
+		member_id: relation.memberId,
 		member_role_id: roleId,
 		member_role_title: relation.role,
 		project_team_id: relation.teamId

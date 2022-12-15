@@ -28,7 +28,8 @@
 				<li><a href="/">Home</a></li>
 				<li><a href="/tom">Tom</a></li>
 				<li><a href="/posts/xxx">Posts</a></li>
-				<li><a href="/aktdb/members">Aktivendb</a></li>
+				<li><a href="/aktdb/members">Mitglieder</a></li>
+				<li><a href="/aktdb/teams">Teams</a></li>
 				<li><a href="/aktdb/member/20">X20</a></li>
 				<li><a href="/aktdb/member/25">X25</a></li>
 			</ul>
