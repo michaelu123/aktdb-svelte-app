@@ -9,7 +9,7 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 	import { eyeIcon, deleteIcon, editIcon } from '$lib/icons.js';
-	import { storeMember } from './load.js';
+	import { deleteMember, deleteRelation, storeMember, storeRelation } from './load.js';
 
 	export let data;
 	let is_admin = $credsStore.is_admin;
@@ -63,11 +63,8 @@
 		user: true
 	};
 	function isChecked(k, m) {
-		// console.log('isChecked m', {...m});
-		// console.log('isChecked k', k);
 		let v = m[k];
 		let b = !(v == null || v === false || v == '' || v == '0');
-		// console.log('isChecked', v, b);
 		return b;
 	}
 	async function saveMember() {
@@ -85,106 +82,115 @@
 		$membersState.member = member;
 		goto('/aktdb/members?from=/member/' + member.id);
 	}
-	function remove() {
-		// TODO DB update
+	async function removeMember() {
 		console.log('delete DB', member);
+		await deleteMember(member.id);
 		$membersState.member = null;
 		$membersState.members = $membersState.members.filter((m) => m.id != member.id);
 		goto('/aktdb/members');
 	}
 
 	// now for the project_teams
-	let teams = [];
-	let team = null;
-	let teamChanges = 0;
-	$: if (team) {
-		teamChanges++;
+	let relations = [];
+	let relation = null;
+	let relationChanges = 0;
+	$: if (relation) {
+		relationChanges++;
 	}
 	const projectTeams = member.project_teams || [];
-	for (let team of projectTeams) {
-		let name = team.name;
-		let link = '/aktdb/team/' + team.id;
-		let role = team.project_team_member.member_role_title;
-		let desc = team.project_team_member.admin_comments;
-		teams.push({ name: name, link: link, role: role, desc: desc, dataTableChecked: false });
+	for (let relation of projectTeams) {
+		let name = relation.name;
+		let id = relation.project_team_member.id;
+		let teamId = relation.id;
+		let link = '/aktdb/team/' + teamId;
+		let role = relation.project_team_member.member_role_title;
+		let desc = relation.project_team_member.admin_comments;
+		relations.push({ name: name, link: link, id: id, teamId: teamId, role: role, desc: desc, dataTableChecked: false });
 	}
-	teams = teams.sort((a, b) => (a.name < b.name ? -1 : 1));
+	relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
 
 	const dataTableModel = writable({
-		source: teams,
-		filtered: teams,
+		source: relations,
+		filtered: relations,
 		selection: [],
 		search: '',
 		sort: 'name',
 		filter: () => {
-			return teams;
+			return relations;
 		},
 		pagination: null
 	});
 	const unsubscribe = dataTableModel.subscribe((v) => dataTableHandler(v));
 	onDestroy(unsubscribe);
 
-	function filtered(allTeams) {
-		let oldTeams = [];
-		for (let team of teams) {
-			oldTeams.push(team.name);
+	function possibleTeams(allTeams) {
+		let oldRelations = [];
+		for (let relation of relations) {
+			oldRelations.push(relation.name);
 		}
-		let possibleTeams = []; // teams of which member is not a member
+		let possibleTeams2 = []; // teams of which member is not a member
 		for (let team of allTeams) {
-			if (!oldTeams.includes(team.name)) {
-				possibleTeams.push(team);
+			if (!oldRelations.includes(team.name)) {
+				possibleTeams2.push(team);
 			}
 		}
-		return possibleTeams.sort((a, b) => (a.name < b.name ? -1 : 1));
+		return possibleTeams2.sort((a, b) => (a.name < b.name ? -1 : 1));
 	}
 
 	let action;
-	async function addTeam() {
-		team = { name: '-' };
+	async function addRelation() {
+		relation = { name: '-' };
 		action = 'adding';
 		await tick();
-		teamChanges = 0;
+		relationChanges = 0;
 	}
-	async function showTeam(t) {
-		console.log('showTeam', t);
-		team = { ...t };
+	async function showRelation(r) {
+		console.log('showRelation', r);
+		relation = { ...r };
 		action = 'showing';
 		await tick();
-		teamChanges = 0;
+		relationChanges = 0;
 	}
-	async function changeTeam(t) {
-		team = { ...t };
+	async function changeRelation(r) {
+		console.log('changeRelation', r);
+		relation = { ...r };
 		action = 'changing';
 		await tick();
-		teamChanges = 0;
+		relationChanges = 0;
 	}
-	async function deleteTeam(name) {
-		// TODO DB update
-		teams = teams.filter((t) => t.name != name);
-		$dataTableModel.source = teams;
+	async function removeRelation(r) {
+		console.log('removeRelation', r);
+		deleteRelation(r.id);
+		relations = relations.filter((t) => t.name != r.name);
+		$dataTableModel.source = relations;
 		await tick();
-		teamChanges = 0;
+		relationChanges = 0;
 	}
-	async function saveTeam() {
-		console.log('saveTeam', team);
-		if (team.name.length < 2 || team.role.length < 2) {
+	async function saveRelation() {
+		console.log('saveRelation', relation);
+		if (relation.name.length < 2 || relation.role.length < 2) {
 			window.alert('Formular unvollständig!');
 			return;
 		}
 		if (action == 'changing') {
-			let i = teams.findIndex((m) => m.name == team.name);
-			teams[i] = team;
-			$dataTableModel.teams = teams;
-			console.log('DB put', team);
+			console.log('DB put', relation);
+			storeRelation("PUT", member.id, relation);
+			let i = relations.findIndex((m) => m.name == relation.name);
+			relations[i] = relation;
+			$dataTableModel.source = relations;
 		} else if (action == 'adding') {
-			teams.push(team);
-			teams = teams.sort((a, b) => (a.name < b.name ? -1 : 1));
-			$dataTableModel.teams = teams;
-			console.log('DB post', team);
+			// options for new team contain only name, we need team id
+			let x = $teamsState.teams.findIndex((t) => t.name == relation.name);
+			relation.teamId = $teamsState.teams[x].id;
+			console.log('DB post', relation);
+			relation.id = storeRelation("POST", member.id, relation);
+			relations.push(relation);
+			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
+			$dataTableModel.source = relations;
 		}
-		team = null;
+		relation = null;
 		action = null;
-		teamChanges = 0;
+		relationChanges = 0;
 		if (!withDetails) {
 			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
 		}
@@ -265,10 +271,10 @@
 				<button
 					class="btn bg-gray-400 mr-8"
 					on:click={() => {
-						remove(member);
+						removeMember();
 					}}>Mitglied löschen</button
 				>
-				<button class="btn bg-gray-400 mr-8" on:click={addTeam}>Mitgliedschaft hinzufügen</button>
+				<button class="btn bg-gray-400 mr-8" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 			{/if}
 		</div>
 	</div>
@@ -281,7 +287,7 @@
 				goto('/aktdb/members?from=/member/' + member.id);
 			}}>Zurück</button
 		>
-		<button class="btn bg-gray-400" on:click={addTeam}>Mitgliedschaft hinzufügen</button>
+		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 	</div>
 {/if}
 <div>
@@ -302,11 +308,11 @@
 						<label class="grid grid-cols-6 items-center m-2">
 							<span class="col-span-2">AG/OG</span>
 							{#if action == 'showing' || action == 'changing'}
-								<input disabled class="col-span-4 form-input" type="text" value={team.name} />
+								<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
 							{:else}
-								<select class="col-span-4 form-select" bind:value={team.name}>
+								<select class="col-span-4 form-select" bind:value={relation.name}>
 									<option value="-">-</option>
-									{#each filtered($teamsState.teams) as team}
+									{#each possibleTeams($teamsState.teams) as team}
 										{#if team.with_details}
 											<option value={team.name}>{team.name}</option>
 										{/if}
@@ -317,9 +323,9 @@
 						<label class="grid grid-cols-6 items-center m-2">
 							<span class="col-span-2">Funktion</span>
 							{#if action == 'showing'}
-								<input disabled class="col-span-4 form-input" type="text" value={team.role} />
+								<input disabled class="col-span-4 form-input" type="text" value={relation.role} />
 							{:else}
-								<select class="col-span-4 form-select" bind:value={team.role}>
+								<select class="col-span-4 form-select" bind:value={relation.role}>
 									{#if action == 'adding'}
 										<option value="-">-</option>
 									{/if}
@@ -332,17 +338,17 @@
 						<label class="grid grid-cols-6 items-center m-2">
 							<span class="col-span-2">Kommentar</span>
 							{#if action == 'showing'}
-								<textarea disabled class="col-span-4 form-input" rows="2" bind:value={team.desc} />
+								<textarea disabled class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
 							{:else}
-								<textarea class="col-span-4 form-input" rows="2" bind:value={team.desc} />
+								<textarea class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
 							{/if}
 						</label>
 					</form>
 				</div>
 			{/if}
 		</div>
-		{#if teamChanges > 1}
-			<button on:click={saveTeam} class="btn bg-gray-400"
+		{#if relationChanges > 1}
+			<button on:click={saveRelation} class="btn bg-gray-400"
 				>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
 			>
 		{/if}
@@ -374,9 +380,9 @@
 									{row.role}
 								</td>
 								<td role="gridcell">
-									<button class="btn" on:click={()=> {showTeam(row)}}>{@html eyeIcon}</button>
-									<button class="btn" on:click={()=> {deleteTeam(row.name)}}>{@html deleteIcon}</button>
-									<button class="btn" on:click={()=> {changeTeam(row)}}>{@html editIcon}</button>
+									<button class="btn" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
+									<button class="btn" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
+									<button class="btn" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
 								</td>
 							</tr>
 						{/each}

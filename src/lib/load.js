@@ -104,5 +104,62 @@ export async function storeMember(method, member) {
 	console.log('2storeMember res', res);
 	return res.id;
 }
+
+export async function deleteMember(id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+
+	let url = baseUrl + '/api/member/' + id + '?token=' + creds.token;
+	console.log('1deleteMember', url, id);
+	const resp = await fetch(url, {
+		method: "DELETE",
+		headers: creds.hdrs
+	});
+	console.log('2deleteMember resp', resp);
+}
+
 export async function storeTeam(method, t) {}
-export async function storeRelation(method, r) {}
+
+export async function storeRelation(method, memberId, relation) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+
+	let url = baseUrl + '/api/project-team-member';
+	if (method == 'PUT') {
+		url += '/' + relation.id;
+	}
+	url += '?token=' + creds.token;
+	let roleId = 0; 
+	if (relation.role == "Mitglied") roleId = 2;
+	else if (relation.role == 'Vorsitz') roleId = 1;
+	else if (relation.role == 'Formales Mitglied') roleId = 3;
+	const r = {
+		admin_comments: relation.desc,
+		member_id: memberId,
+		member_role_id: roleId,
+		member_role_title: relation.role,
+		project_team_id: relation.teamId
+	};
+	console.log('1storeRelation', url, method, r);
+	const resp = await fetch(url, {
+		method: method,
+		headers: creds.hdrs,
+		body: JSON.stringify(r)
+	});
+	const res = await resp.json();
+	console.log('2storeRelation res', res);
+	return res.id;
+}
+
+export async function deleteRelation(id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+
+	let url = baseUrl + '/api/project-team-member/' + id + '?token=' + creds.token;
+	console.log('1deleteRelation', url, id);
+	const resp = await fetch(url, {
+		method: 'DELETE',
+		headers: creds.hdrs
+	});
+	console.log('2deleteRelation resp', resp);
+}
