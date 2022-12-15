@@ -5,14 +5,13 @@
 	import MemberForm from '$lib/MemberForm.svelte';
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';
-
 </script>
 
 <main class="debug-screens">
 	{#if $navigating}
-		<ProgressBar/>
+		<ProgressBar />
 	{:else}
-		<MemberForm data={data} />
+		<MemberForm {data} />
 	{/if}
 </main>
 

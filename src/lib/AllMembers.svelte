@@ -38,7 +38,7 @@
 		$membersState.member = null;
 	}
 
-	search = $membersState.search || "";
+	search = $membersState.search || '';
 	mustBeActive = $membersState.mustBeActive;
 	if (mustBeActive == null) mustBeActive = true;
 	withDetails = $membersState.withDetails;
@@ -150,7 +150,7 @@
 						</thead>
 						<tbody>
 							{#each $dataTableModel.filtered as row, rowIndex}
-								<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1} on:click={(e) => {selectRow(row)}}>
+								<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1} on:click={() => {selectRow(row)}}>
 								<!--
 									<td role="gridcell" aria-colindex={1} tabindex="0">
 										<input type="checkbox" bind:checked={row.dataTableChecked} />

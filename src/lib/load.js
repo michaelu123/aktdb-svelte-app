@@ -32,21 +32,21 @@ export async function loadAll(fetch) {
 		}
 	}
 
-    const urlT = baseUrl + '/api/project-teams?token=';
-    console.log('3loadAll', urlT);
-    const respT = await fetch(urlT + creds.token, {
-        method: 'GET',
-        headers: creds.hdrs
-    });
-    const teams = await respT.json();
-    console.log('4loadAll res', teams);
-    for (let team of teams) {
-			for (let key of Object.keys(team)) {
-				if (team[key] == null) {
-					team[key] = '';
-				}
+	const urlT = baseUrl + '/api/project-teams?token=';
+	console.log('3loadAll', urlT);
+	const respT = await fetch(urlT + creds.token, {
+		method: 'GET',
+		headers: creds.hdrs
+	});
+	const teams = await respT.json();
+	console.log('4loadAll res', teams);
+	for (let team of teams) {
+		for (let key of Object.keys(team)) {
+			if (team[key] == null) {
+				team[key] = '';
 			}
 		}
+	}
 
 	return {
 		members: members,
@@ -74,23 +74,23 @@ export async function loadMember(fetch, id) {
 	return member;
 }
 
-const omitFields = ["id", "updated_at", "user", "with_details", "with_detals"];
+const omitFields = ['id', 'updated_at', 'user', 'with_details', 'with_detals'];
 export async function storeMember(method, member) {
 	let creds = getCreds();
 	const baseUrl = creds.url;
 	let m = { ...member };
 
 	let url = baseUrl + '/api/member';
-	if (method == "PUT") {
-		url += "/" + m.id;
+	if (method == 'PUT') {
+		url += '/' + m.id;
 	}
 	url += '?token=' + creds.token;
 	for (let key of Object.keys(member)) {
-		if (m[key] == "") {
+		if (m[key] == '') {
 			m[key] = null;
 		}
 	}
-	m["name"] = m.last_name + ", " + m.first_name;
+	m['name'] = m.last_name + ', ' + m.first_name;
 	for (let key of omitFields) {
 		delete m[key];
 	}
@@ -106,4 +106,3 @@ export async function storeMember(method, member) {
 }
 export async function storeTeam(method, t) {}
 export async function storeRelation(method, r) {}
-

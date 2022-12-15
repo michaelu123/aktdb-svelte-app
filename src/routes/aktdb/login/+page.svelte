@@ -1,7 +1,7 @@
 <script>
 	/** @type {import('./$types').PageData} */
 	export let data;
-	console.log("login data", data);
+	console.log('login data', data);
 	let fetch = data.fetch;
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';

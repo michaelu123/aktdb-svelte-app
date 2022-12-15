@@ -8,9 +8,9 @@
 
 <main class="debug-screens">
 	{#if $navigating}
-		<ProgressBar/>
+		<ProgressBar />
 	{:else}
-		<MemberForm data={data}/>
+		<MemberForm {data} />
 	{/if}
 </main>
 

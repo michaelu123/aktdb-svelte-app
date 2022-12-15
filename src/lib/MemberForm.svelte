@@ -62,7 +62,6 @@
 		responded_to_questionaire: true,
 		user: true
 	};
-	let newId = 1000;
 	function isChecked(k, m) {
 		// console.log('isChecked m', {...m});
 		// console.log('isChecked k', k);
@@ -71,13 +70,17 @@
 		// console.log('isChecked', v, b);
 		return b;
 	}
-	async function save() {
+	async function saveMember() {
+		if (member.first_name.length < 2 || member.last_name.length < 2) {
+			window.alert('Bitte Vor- und Nachname eintragen!');
+			return;
+		}
 		if (member.id == null) {
 			console.log('post DB', member);
-			member.id = await storeMember("POST", member);
+			member.id = await storeMember('POST', member);
 		} else {
 			console.log('push DB', member);
-			await storeMember("PUT", member);
+			await storeMember('PUT', member);
 		}
 		$membersState.member = member;
 		goto('/aktdb/members?from=/member/' + member.id);
@@ -256,7 +259,7 @@
 			<button
 				disabled={memberChanges <= 1}
 				class="btn bg-gray-400 mr-8"
-				on:click={() => save(member)}>Speichern</button
+				on:click={() => saveMember(member)}>Speichern</button
 			>
 			{#if is_admin}
 				<button

@@ -9,12 +9,12 @@ export async function load({ fetch, params }) {
 	let creds;
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
-	console.log('1ld', creds);
+	console.log('memberSlugLoad', creds);
 	if (creds == null) {
 		throw redirect(307, '/aktdb/login?from=/members');
 	}
 
 	const id = +params.slug;
 	const member = await loadMember(fetch, id);
-	return { member: member, fetch: fetch, params: params};
+	return { member: member, fetch: fetch, params: params };
 }

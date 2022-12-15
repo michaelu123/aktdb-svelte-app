@@ -26,7 +26,6 @@
 		<nav class="list-nav">
 			<ul>
 				<li><a href="/">Home</a></li>
-				<li><a href="/about">About</a></li>
 				<li><a href="/tom">Tom</a></li>
 				<li><a href="/posts/xxx">Posts</a></li>
 				<li><a href="/aktdb/members">Aktivendb</a></li>
@@ -37,5 +36,4 @@
 	>
 	<!-- Page Content Slot -->
 	<slot />
-</AppShell> 
-
+</AppShell>
