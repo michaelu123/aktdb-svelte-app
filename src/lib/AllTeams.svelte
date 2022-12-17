@@ -14,7 +14,6 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
-	console.log('at1', $teamsState);
 	let is_admin = $credsStore.is_admin;
 	let teams = $teamsState.teams;
 	let search = $teamsState.search || '';
@@ -40,7 +39,6 @@
 	dataTableSelect(dataTableModel, 'id', [1]);
 
 	async function selectRow(row) {
-		console.log('at2 selrow', row);
 		let team = { ...row };
 		// if (!team.with_details) return;
 		teamsState.set({
@@ -51,12 +49,10 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		console.log('at3 save', $teamsState);
 		await goto('/aktdb/team/' + team.id + '?from=/aktdb/teams');
 	}
 
 	async function newTeam() {
-		console.log('at4 newteam');
 		teamsState.set({
 			search: $dataTableModel.search,
 			withDetails: $dataTableModel.withDetails,
@@ -65,7 +61,6 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		console.log('at5 save', $teamsState);
 		await goto('/aktdb/newteam?from=/aktdb/teams');
 	}
 
@@ -86,7 +81,7 @@
 		<!-- Search Input -->
 		<div class="card-header flex">
 			{#if !is_admin}
-				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur sichtbare</SlideToggle>
+				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur Teammitglieder</SlideToggle>
 			{/if}
 			<input
 				bind:value={$dataTableModel.search}

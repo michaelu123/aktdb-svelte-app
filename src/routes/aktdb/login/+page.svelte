@@ -1,7 +1,6 @@
 <script>
 	/** @type {import('./$types').PageData} */
 	export let data;
-	console.log('login data', data);
 	let fetch = data.fetch;
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';
@@ -25,25 +24,19 @@
 	async function login() {
 		let from = $page.url.search || ''; // from where we redirected to login
 
-		console.log('lg1 from', from);
 		let body = JSON.stringify({ email: email, password: password });
-		console.log('lg1A login', email, password, body);
 
 		const resp1 = await fetch(urlLogin, {
 			method: 'POST',
 			headers: hdrs,
 			body: body
 		});
-		console.log('lg2 resp', resp1);
 		const res1 = await resp1.json();
-		console.log('afterX4', res1);
 		if (!resp1.ok) {
 			error = res1.error;
 			return;
 		}
 		error = null;
-		console.log('lg3 token', res1.token);
-		console.log('lg4 isadmin', res1.user.is_admin);
 
 		credsStore.set({
 			token: res1.token,

@@ -14,7 +14,6 @@
 		tableA11y
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
-	console.log('am1', $membersState);
 	let is_admin = $credsStore.is_admin;
 	let members = $membersState.members;
 	let search = $membersState.search || '';
@@ -43,7 +42,6 @@
 	dataTableSelect(dataTableModel, 'id', [1]);
 
 	async function selectRow(row) {
-		console.log('am2 selrow', row);
 		let member = { ...row };
 		// if (!member.with_details) return;
 		membersState.set({
@@ -55,12 +53,10 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		console.log('am3 save', $membersState);
 		await goto('/aktdb/member/' + member.id + '?from=/aktdb/members');
 	}
 
 	async function newMember() {
-		console.log('am4 newmem');
 		membersState.set({
 			search: $dataTableModel.search,
 			mustBeActive: $dataTableModel.mustBeActive,
@@ -70,7 +66,6 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		console.log('am5 save', $membersState);
 		await goto('/aktdb/newmember?from=/aktdb/members');
 	}
 
@@ -96,7 +91,7 @@
 		<div class="card-header flex">
 			<SlideToggle bind:checked={$dataTableModel.mustBeActive}>Nur Aktive</SlideToggle>
 			{#if !is_admin}
-				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur sichtbare</SlideToggle>
+				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur Teammitglieder</SlideToggle>
 			{/if}
 			<input
 				bind:value={$dataTableModel.search}

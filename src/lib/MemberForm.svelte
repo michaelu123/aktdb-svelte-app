@@ -79,24 +79,17 @@
 			window.alert('Bitte Vor- und Nachname eintragen!');
 			return;
 		}
-		const isNewMember = member.id == null;
-		if (isNewMember) {
-			console.log('post DB', member);
+		if (member.id == null) {
 			member.id = await storeMember('POST', member);
 			members.push(member);
 			$membersState.members = members;
-		} else {
-			console.log('put DB', member);
-			await storeMember('PUT', member);
-		}
-		if (isNewMember) {
 			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id);
 		} else {
+			await storeMember('PUT', member);
 			goto('/aktdb/members?from=/member/' + member.id);
 		}
 	}
 	async function removeMember() {
-		console.log('delete DB', member);
 		await deleteMember(member.id);
 		$membersState.member = null;
 		$membersState.members = $membersState.members.filter((m) => m.id != member.id);
@@ -169,21 +162,18 @@
 		relationChanges = 0;
 	}
 	async function showRelation(r) {
-		console.log('showRelation', r);
 		relation = { ...r };
 		action = 'showing';
 		await tick();
 		relationChanges = 0;
 	}
 	async function changeRelation(r) {
-		console.log('changeRelation', r);
 		relation = { ...r };
 		action = 'changing';
 		await tick();
 		relationChanges = 0;
 	}
 	async function removeRelation(r) {
-		console.log('removeRelation', r);
 		deleteRelation(r.id);
 		relations = relations.filter((t) => t.name != r.name);
 		$dataTableModel.source = relations;
@@ -196,7 +186,6 @@
 			return;
 		}
 		if (action == 'changing') {
-			console.log('DB put', relation);
 			await storeRelation('PUT', relation);
 			let i = relations.findIndex((m) => m.name == relation.name);
 			relations[i] = relation;
@@ -206,7 +195,7 @@
 			let x = $teamsState.teams.findIndex((t) => t.name == relation.name);
 			relation.teamId = $teamsState.teams[x].id;
 			relation.memberId = member.id;
-			console.log('DB post', relation);
+			relation.link = '/aktdb/team/' + relation.teamId;
 			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -225,7 +214,7 @@
 	{#if !member.id}
 		<h2 class="text-center p-2">Daten für neues Mitglied</h2>
 	{:else}
-		<h2>Mitglied Info</h2>
+		<h2 class="text-center p-2">Mitglied Info</h2>
 	{/if}
 	<div class="card p-1">
 		<form on:submit|preventDefault class="mt-8">
@@ -303,6 +292,8 @@
 						removeMember();
 					}}>Mitglied löschen</button
 				>
+			{/if}
+			{#if member.id}
 				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
 					>Mitgliedschaft hinzufügen</button
 				>

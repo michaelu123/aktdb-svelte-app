@@ -53,24 +53,17 @@
 			window.alert('Bitte Name eintragen!');
 			return;
 		}
-		const newteam = team.id == null;
-		if (newTeam) {
-			console.log('post DB', team);
+		if (team.id == null) {
 			team.id = await storeTeam('POST', team);
 			teams.push(team);
 			$teamsState.teams = teams;
-		} else {
-			console.log('put DB', team);
-			await storeTeam('PUT', team);
-		}
-		if (isNewTeam) {
 			goto('/aktdb/team/' + team.id + '?from=/team/' + team.id);
 		} else {
+			await storeTeam('PUT', team);
 			goto('/aktdb/teams?from=/team/' + team.id);
 		}
 	}
 	async function removeTeam() {
-		console.log('delete DB', team);
 		await deleteTeam(team.id);
 		$teamsState.team = null;
 		$teamsState.teams = $teamsState.teams.filter((m) => m.id != team.id);
@@ -145,21 +138,18 @@
 		relationChanges = 0;
 	}
 	async function showRelation(r) {
-		console.log('showRelation', r);
 		relation = { ...r };
 		action = 'showing';
 		await tick();
 		relationChanges = 0;
 	}
 	async function changeRelation(r) {
-		console.log('changeRelation', r);
 		relation = { ...r };
 		action = 'changing';
 		await tick();
 		relationChanges = 0;
 	}
 	async function removeRelation(r) {
-		console.log('removeRelation', r);
 		deleteRelation(r.id);
 		relations = relations.filter((t) => t.name != r.name);
 		$dataTableModel.source = relations;
@@ -172,7 +162,6 @@
 			return;
 		}
 		if (action == 'changing') {
-			console.log('DB put', relation);
 			await storeRelation('PUT', relation);
 			let i = relations.findIndex((m) => m.name == relation.name);
 			relations[i] = relation;
@@ -182,7 +171,7 @@
 			let x = $membersState.members.findIndex((t) => t.name == relation.name);
 			relation.memberId = $membersState.members[x].id;
 			relation.teamId = team.id;
-			console.log('DB post', relation);
+			relation.link = '/aktdb/member/' + relation.memberId;
 			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -201,7 +190,7 @@
 	{#if !team.id}
 		<h2 class="text-center p-2">Daten für neues Team</h2>
 	{:else}
-		<h2>Team Info</h2>
+		<h2 class="text-center p-2">Team Info</h2>
 	{/if}
 	<div class="card p-1">
 		<form on:submit|preventDefault class="mt-8">
@@ -271,6 +260,8 @@
 						removeTeam();
 					}}>Team löschen</button
 				>
+			{/if}
+			{#if team.id}
 				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
 					>Mitgliedschaft hinzufügen</button
 				>

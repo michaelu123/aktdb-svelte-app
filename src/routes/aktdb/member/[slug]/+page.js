@@ -9,7 +9,6 @@ export async function load({ fetch, params }) {
 	let creds;
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
-	console.log('memberSlugLoad', creds);
 	if (creds == null) {
 		throw redirect(307, '/aktdb/login?from=/members');
 	}

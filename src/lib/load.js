@@ -5,7 +5,6 @@ function getCreds() {
 	let creds;
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
-	console.log('getCreds', creds);
 	if (creds == null) {
 		throw redirect(307, '/aktdb/login?from=/members');
 	}
@@ -17,13 +16,11 @@ export async function loadAll(fetch) {
 	const baseUrl = creds.url;
 
 	const urlM = baseUrl + '/api/members?token=';
-	console.log('1loadAll', urlM);
 	const respM = await fetch(urlM + creds.token, {
 		method: 'GET',
 		headers: creds.hdrs
 	});
 	const members = await respM.json();
-	console.log('2loadAll res', members);
 	for (let member of members) {
 		for (let key of Object.keys(member)) {
 			if (member[key] == null) {
@@ -33,13 +30,11 @@ export async function loadAll(fetch) {
 	}
 
 	const urlT = baseUrl + '/api/project-teams?token=';
-	console.log('3loadAll', urlT);
 	const respT = await fetch(urlT + creds.token, {
 		method: 'GET',
 		headers: creds.hdrs
 	});
 	const teams = await respT.json();
-	console.log('4loadAll res', teams);
 	for (let team of teams) {
 		for (let key of Object.keys(team)) {
 			if (team[key] == null) {
@@ -59,13 +54,11 @@ export async function loadMember(fetch, id) {
 	const baseUrl = creds.url;
 	const url = baseUrl + '/api/member/' + id + '?token=' + creds.token;
 
-	console.log('1loadMember url', url);
 	const resp = await fetch(url, {
 		method: 'GET',
 		headers: creds.hdrs
 	});
 	const member = await resp.json();
-	console.log('2loadMember res', member);
 	for (let key of Object.keys(member)) {
 		if (member[key] == null) {
 			member[key] = '';
@@ -79,13 +72,11 @@ export async function loadTeam(fetch, id) {
 	const baseUrl = creds.url;
 	const url = baseUrl + '/api/project-team/' + id + '?token=' + creds.token;
 
-	console.log('1loadTeam url', url);
 	const resp = await fetch(url, {
 		method: 'GET',
 		headers: creds.hdrs
 	});
 	const team = await resp.json();
-	console.log('2loadTeam res', team);
 	for (let key of Object.keys(team)) {
 		if (team[key] == null) {
 			team[key] = '';
@@ -114,14 +105,12 @@ export async function storeMember(method, member) {
 	for (let key of omitMemberFields) {
 		delete m[key];
 	}
-	console.log('1storeMember', url, method, m);
 	const resp = await fetch(url, {
 		method: method,
 		headers: creds.hdrs,
 		body: JSON.stringify(m)
 	});
 	const res = await resp.json();
-	console.log('2storeMember res', res);
 	return res.id;
 }
 
@@ -130,12 +119,10 @@ export async function deleteMember(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/member/' + id + '?token=' + creds.token;
-	console.log('1deleteMember', url, id);
 	const resp = await fetch(url, {
 		method: "DELETE",
 		headers: creds.hdrs
 	});
-	console.log('2deleteMember resp', resp);
 }
 
 const omitTeamFields = ['id', 'updated_at', 'with_details', 'with_detals'];
@@ -157,14 +144,12 @@ export async function storeTeam(method, team) {
 		for (let key of omitTeamFields) {
 			delete t[key];
 		}
-		console.log('1storeTeam', url, method, t);
 		const resp = await fetch(url, {
 			method: method,
 			headers: creds.hdrs,
 			body: JSON.stringify(t)
 		});
 		const res = await resp.json();
-		console.log('2storeMember res', res);
 		return res.id;
 }
 
@@ -173,12 +158,10 @@ export async function deleteTeam(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/project-team/' + id + '?token=' + creds.token;
-	console.log('1deleteTeam', url, id);
 	const resp = await fetch(url, {
 		method: 'DELETE',
 		headers: creds.hdrs
 	});
-	console.log('2deleteTeam resp', resp);
 }
 
 export async function storeRelation(method, relation) {
@@ -201,14 +184,12 @@ export async function storeRelation(method, relation) {
 		member_role_title: relation.role,
 		project_team_id: relation.teamId
 	};
-	console.log('1storeRelation', url, method, r);
 	const resp = await fetch(url, {
 		method: method,
 		headers: creds.hdrs,
 		body: JSON.stringify(r)
 	});
 	const res = await resp.json();
-	console.log('2storeRelation res', res);
 	return res.id;
 }
 
@@ -217,10 +198,8 @@ export async function deleteRelation(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/project-team-member/' + id + '?token=' + creds.token;
-	console.log('1deleteRelation', url, id);
 	const resp = await fetch(url, {
 		method: 'DELETE',
 		headers: creds.hdrs
 	});
-	console.log('2deleteRelation resp', resp);
 }
