@@ -106,6 +106,7 @@
 	const projectTeams = member.project_teams || [];
 	for (let team of projectTeams) {
 		let name = team.name;
+		let withDetails = team.with_details;
 		let tpm = team.project_team_member;
 		let id = tpm.id;
 		let memberId = member.id;
@@ -119,6 +120,7 @@
 			id: id,
 			memberId: memberId,
 			teamId: teamId,
+			withDetails: withDetails,
 			role: role,
 			desc: desc,
 			dataTableChecked: false
@@ -402,17 +404,28 @@
 					<tbody>
 						{#each $dataTableModel.filtered as row, rowIndex}
 							<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1}>
-								<td role="gridcell" aria-colindex={0} tabindex="0">
-									<a href={row.link}>{row.name}</a>
-								</td>
-								<td role="gridcell" aria-colindex={1} tabindex="0">
-									{row.role}
-								</td>
-								<td role="gridcell">
-									<button class="btn" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
-									<button class="btn" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
-									<button class="btn" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
-								</td>
+								{#if row.withDetails}
+									<td role="gridcell" aria-colindex={0} tabindex="0">
+										<a href={row.link}>{row.name}</a>
+									</td>
+									<td role="gridcell" aria-colindex={1} tabindex="0">
+										{row.role}
+									</td>
+									<td role="gridcell">
+										<button class="btn" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
+										<button class="btn" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
+										<button class="btn" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
+									</td>
+								{:else}
+									<td role="gridcell" aria-colindex={0} tabindex="0">
+										{row.name}
+									</td>
+									<td role="gridcell" aria-colindex={1} tabindex="0">
+										{row.role}
+									</td>
+									<td role="gridcell">
+									</td>
+								{/if}
 							</tr>
 						{/each}
 					</tbody>

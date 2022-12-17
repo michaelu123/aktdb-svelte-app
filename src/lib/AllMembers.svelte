@@ -43,7 +43,7 @@
 
 	async function selectRow(row) {
 		let member = { ...row };
-		// if (!member.with_details) return;
+		if (!member.with_details) return;
 		membersState.set({
 			search: $dataTableModel.search,
 			mustBeActive: $dataTableModel.mustBeActive,

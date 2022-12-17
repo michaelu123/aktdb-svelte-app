@@ -40,7 +40,7 @@
 
 	async function selectRow(row) {
 		let team = { ...row };
-		// if (!team.with_details) return;
+		if (!team.with_details) return;
 		teamsState.set({
 			search: $dataTableModel.search,
 			withDetails: $dataTableModel.withDetails,
@@ -81,7 +81,7 @@
 		<!-- Search Input -->
 		<div class="card-header flex">
 			{#if !is_admin}
-				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur Teammitglieder</SlideToggle>
+				<SlideToggle bind:checked={$dataTableModel.withDetails}>Nur meine Teams</SlideToggle>
 			{/if}
 			<input
 				bind:value={$dataTableModel.search}
