@@ -1,9 +1,4 @@
 <script>
-	let teams;
-	let withDetails = true;
-	let search;
-	let offset;
-	let limit;
 	import { writable } from 'svelte/store';
 	import { credsStore, teamsState } from './stores.js';
 	import { onDestroy } from 'svelte';
@@ -20,28 +15,14 @@
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
 	console.log('at1', $teamsState);
-	teams = $teamsState.teams;
-
 	let is_admin = $credsStore.is_admin;
-	let team = $teamsState.team;
-	if (team) {
-		// saved team from TeamForm
-		console.log('at2 use state team', team.isNew);
-		if (team.isNew) {
-			teams.push(team);
-			team.isNew = false;
-		} else {
-			let i = teams.findIndex((t) => t.id == team.id);
-			teams[i] = team;
-		}
-		$teamsState.team = null;
-	}
-
-	search = $teamsState.search || '';
-	withDetails = $teamsState.withDetails;
+	let teams = $teamsState.teams;
+	let search = $teamsState.search || '';
+	let withDetails = $teamsState.withDetails;
 	if (withDetails == null) withDetails = true;
-	offset = $teamsState.offset || 0;
-	limit = $teamsState.limit || 10;
+	let offset = $teamsState.offset || 0;
+	let limit = $teamsState.limit || 10;
+
 	const dataTableModel = writable({
 		source: teams,
 		filtered: teams,
@@ -121,10 +102,6 @@
 				<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
 						<thead on:click={(e) => { dataTableSort(e, dataTableModel) }} on:keypress>
 							<tr>
-								<!--
-								<th><input type="checkbox" on:click={(e) => { dataTableSelectAll(e, dataTableModel) }} /></th>
-								<th data-sort="id">ID</th>
-								-->
 								<th data-sort="name">Name</th>
 								<th data-sort="email">Email</th>
 								<th data-sort="needs_first_aid_training">EHK</th>
@@ -134,14 +111,6 @@
 						<tbody>
 							{#each $dataTableModel.filtered as row, rowIndex}
 								<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1} on:click={() => {selectRow(row)}}>
-								<!--
-									<td role="gridcell" aria-colindex={1} tabindex="0">
-										<input type="checkbox" bind:checked={row.dataTableChecked} />
-									</td>
-									<td role="gridcell" aria-colindex={2} tabindex="0">
-										<em class="opacity-50">{row.id}</em>
-									</td>
-								-->
 									<td role="gridcell" aria-colindex={1} tabindex="0">
 										{row.name}
 									</td>
@@ -152,11 +121,6 @@
 										<!--input type="checkbox" disabled checked={+row.active} /-->
 										{+row.needs_first_aid_training? "Ja": "Nein"}
 									</td>
-								<!--
-									<td role="gridcell" aria-colindex={10} tabindex="0" class="table-cell-fit">
-										<button class="btn btn-ghost-surface btn-sm" on:click={()=>{console.log(row,rowIndex)}}>Console Log</button>
-									</td>
-								-->
 								</tr>
 							{/each}
 						</tbody>

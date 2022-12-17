@@ -12,6 +12,6 @@ export async function load({ fetch, params }) {
 	if (creds == null) {
 		throw redirect(307, '/aktdb/login?from=/members');
 	}
-	let member = { id: null, isNew: true, gender: '', active: true, with_details: true };
+	let member = { id: null, gender: '', active: true, with_details: true };
 	return { member: member, fetch: fetch, params: params };
 }

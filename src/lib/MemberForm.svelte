@@ -30,8 +30,8 @@
 		memberChanges++;
 	}
 	let textFields = {
-		last_name: 'Nachname',
-		first_name: 'Vorname',
+		last_name: 'Nachname*',
+		first_name: 'Vorname*',
 		address: 'PLZ',
 		adfc_id: 'Mitgliedsnr.',
 		birthday: 'Geburtsjahr',
@@ -58,29 +58,42 @@
 		user: 'DB User'
 	};
 	let readOnlyFields = {
-		responded_to_questionaire_at: true,
-		responded_to_questionaire: true,
 		user: true
 	};
+	if (!is_admin) {
+		readOnlyFields['responded_to_questionaire_at'] = true;
+		readOnlyFields['responded_to_questionaire'] = true;
+	}
 	function isChecked(k, m) {
 		let v = m[k];
 		let b = !(v == null || v === false || v == '' || v == '0');
 		return b;
 	}
 	async function saveMember() {
-		if (member.first_name.length < 2 || member.last_name.length < 2) {
+		if (
+			!member.first_name ||
+			member.first_name.length < 2 ||
+			!member.last_name ||
+			member.last_name.length < 2
+		) {
 			window.alert('Bitte Vor- und Nachname eintragen!');
 			return;
 		}
-		if (member.id == null) {
+		const isNewMember = member.id == null;
+		if (isNewMember) {
 			console.log('post DB', member);
 			member.id = await storeMember('POST', member);
+			members.push(member);
+			$membersState.members = members;
 		} else {
-			console.log('push DB', member);
+			console.log('put DB', member);
 			await storeMember('PUT', member);
 		}
-		$membersState.member = member;
-		goto('/aktdb/members?from=/member/' + member.id);
+		if (isNewMember) {
+			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id);
+		} else {
+			goto('/aktdb/members?from=/member/' + member.id);
+		}
 	}
 	async function removeMember() {
 		console.log('delete DB', member);
@@ -107,7 +120,16 @@
 		let link = '/aktdb/team/' + teamId;
 		let role = tpm.member_role_title;
 		let desc = tpm.admin_comments;
-		relations.push({ name: name, link: link, id: id, memberId: memberId, teamId: teamId, role: role, desc: desc, dataTableChecked: false });
+		relations.push({
+			name: name,
+			link: link,
+			id: id,
+			memberId: memberId,
+			teamId: teamId,
+			role: role,
+			desc: desc,
+			dataTableChecked: false
+		});
 	}
 	relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
 
@@ -169,14 +191,13 @@
 		relationChanges = 0;
 	}
 	async function saveRelation() {
-		console.log('saveRelation', relation);
 		if (relation.name.length < 2 || relation.role.length < 2) {
 			window.alert('Formular unvollständig!');
 			return;
 		}
 		if (action == 'changing') {
 			console.log('DB put', relation);
-			await storeRelation("PUT", relation);
+			await storeRelation('PUT', relation);
 			let i = relations.findIndex((m) => m.name == relation.name);
 			relations[i] = relation;
 			$dataTableModel.source = relations;
@@ -186,7 +207,7 @@
 			relation.teamId = $teamsState.teams[x].id;
 			relation.memberId = member.id;
 			console.log('DB post', relation);
-			relation.id = await storeRelation("POST", relation);
+			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
 			$dataTableModel.source = relations;
@@ -201,7 +222,12 @@
 </script>
 
 {#if withDetails}
-	<div>
+	{#if !member.id}
+		<h2 class="text-center p-2">Daten für neues Mitglied</h2>
+	{:else}
+		<h2>Mitglied Info</h2>
+	{/if}
+	<div class="card p-1">
 		<form on:submit|preventDefault class="mt-8">
 			{#each Object.keys(textFields) as key (key)}
 				<label class="grid grid-cols-6 items-center m-2">
@@ -270,14 +296,16 @@
 				class="btn bg-gray-400 mr-8"
 				on:click={() => saveMember(member)}>Speichern</button
 			>
-			{#if is_admin}
+			{#if is_admin && member.id}
 				<button
 					class="btn bg-gray-400 mr-8"
 					on:click={() => {
 						removeMember();
 					}}>Mitglied löschen</button
 				>
-				<button class="btn bg-gray-400 mr-8" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
+				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
+					>Mitgliedschaft hinzufügen</button
+				>
 			{/if}
 		</div>
 	</div>
@@ -293,75 +321,82 @@
 		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 	</div>
 {/if}
-<div>
-	<section class="card !bg-accent-500/5">
-		<h2 class="py-5">Mitgliedschaften</h2>
-		<div class="">
-			{#if action == 'changing'}
-				<h4>Mitgliedschaft ändern</h4>
-			{:else if action == 'adding'}
-				<h4>Mitgliedschaft hinzufügen</h4>
-			{:else if action == 'showing'}
-				<h4>Mitgliedschaft Info</h4>
-			{/if}
 
-			{#if action}
-				<div class="card">
-					<form on:submit|preventDefault class="mx-8 p-8">
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">AG/OG</span>
-							{#if action == 'showing' || action == 'changing'}
-								<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
-							{:else}
-								<select class="col-span-4 form-select" bind:value={relation.name}>
-									<option value="-">-</option>
-									{#each possibleTeams($teamsState.teams) as team}
-										{#if team.with_details}
-											<option value={team.name}>{team.name}</option>
-										{/if}
-									{/each}
-								</select>
-							{/if}
-						</label>
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">Funktion</span>
-							{#if action == 'showing'}
-								<input disabled class="col-span-4 form-input" type="text" value={relation.role} />
-							{:else}
-								<select class="col-span-4 form-select" bind:value={relation.role}>
-									{#if action == 'adding'}
+{#if member.id}
+	<div>
+		<section class="card !bg-accent-500/5">
+			<h2 class="py-5">Mitgliedschaften</h2>
+			<div class="">
+				{#if action == 'changing'}
+					<h4>Mitgliedschaft ändern</h4>
+				{:else if action == 'adding'}
+					<h4>Mitgliedschaft hinzufügen</h4>
+				{:else if action == 'showing'}
+					<h4>Mitgliedschaft Info</h4>
+				{/if}
+
+				{#if action}
+					<div class="card">
+						<form on:submit|preventDefault class="mx-8 p-8">
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">AG/OG</span>
+								{#if action == 'showing' || action == 'changing'}
+									<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
+								{:else}
+									<select class="col-span-4 form-select" bind:value={relation.name}>
 										<option value="-">-</option>
-									{/if}
-									<option value="Mitglied">Mitglied</option>
-									<option value="Formales Mitglied">Formales Mitglied</option>
-									<option value="Vorsitz">Vorsitz</option>
-								</select>
-							{/if}
-						</label>
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">Kommentar</span>
-							{#if action == 'showing'}
-								<textarea disabled class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
-							{:else}
-								<textarea class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
-							{/if}
-						</label>
-					</form>
-				</div>
+										{#each possibleTeams($teamsState.teams) as team}
+											{#if team.with_details}
+												<option value={team.name}>{team.name}</option>
+											{/if}
+										{/each}
+									</select>
+								{/if}
+							</label>
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">Funktion</span>
+								{#if action == 'showing'}
+									<input disabled class="col-span-4 form-input" type="text" value={relation.role} />
+								{:else}
+									<select class="col-span-4 form-select" bind:value={relation.role}>
+										{#if action == 'adding'}
+											<option value="-">-</option>
+										{/if}
+										<option value="Mitglied">Mitglied</option>
+										<option value="Formales Mitglied">Formales Mitglied</option>
+										<option value="Vorsitz">Vorsitz</option>
+									</select>
+								{/if}
+							</label>
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">Kommentar</span>
+								{#if action == 'showing'}
+									<textarea
+										disabled
+										class="col-span-4 form-input"
+										rows="2"
+										bind:value={relation.desc}
+									/>
+								{:else}
+									<textarea class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
+								{/if}
+							</label>
+						</form>
+					</div>
+				{/if}
+			</div>
+			{#if relationChanges > 1}
+				<button on:click={saveRelation} class="btn bg-gray-400"
+					>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
+				>
 			{/if}
-		</div>
-		{#if relationChanges > 1}
-			<button on:click={saveRelation} class="btn bg-gray-400"
-				>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
-			>
-		{/if}
-	</section>
-	<section class="card !bg-accent-500/5">
-		<!-- Table -->
-		<div class="card-body">
-			<div class="table-container">
-				<!-- prettier-ignore -->
-				<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
+		</section>
+		<section class="card !bg-accent-500/5">
+			<!-- Table -->
+			<div class="card-body">
+				<div class="table-container">
+					<!-- prettier-ignore -->
+					<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
 					<thead>
 						<tr>
 							<!--
@@ -391,7 +426,8 @@
 						{/each}
 					</tbody>
 				</table>
+				</div>
 			</div>
-		</div>
-	</section>
-</div>
+		</section>
+	</div>
+{/if}

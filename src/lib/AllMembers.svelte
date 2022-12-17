@@ -1,10 +1,4 @@
 <script>
-	let members;
-	let mustBeActive = true;
-	let withDetails = true;
-	let search;
-	let offset;
-	let limit;
 	import { writable } from 'svelte/store';
 	import { credsStore, membersState } from './stores.js';
 	import { onDestroy } from 'svelte';
@@ -21,30 +15,16 @@
 	} from '@brainandbones/skeleton/utilities/DataTable/DataTable';
 
 	console.log('am1', $membersState);
-	members = $membersState.members;
-
 	let is_admin = $credsStore.is_admin;
-	let member = $membersState.member;
-	if (member) {
-		// saved member from MemberForm
-		console.log('am2 use state member', member.isNew);
-		if (member.isNew) {
-			members.push(member);
-			member.isNew = false;
-		} else {
-			let i = members.findIndex((m) => m.id == member.id);
-			members[i] = member;
-		}
-		$membersState.member = null;
-	}
-
-	search = $membersState.search || '';
-	mustBeActive = $membersState.mustBeActive;
+	let members = $membersState.members;
+	let search = $membersState.search || '';
+	let mustBeActive = $membersState.mustBeActive;
 	if (mustBeActive == null) mustBeActive = true;
-	withDetails = $membersState.withDetails;
+	let withDetails = $membersState.withDetails;
 	if (withDetails == null) withDetails = true;
-	offset = $membersState.offset || 0;
-	limit = $membersState.limit || 10;
+	let offset = $membersState.offset || 0;
+	let limit = $membersState.limit || 10;
+
 	const dataTableModel = writable({
 		source: members,
 		filtered: members,
@@ -132,10 +112,6 @@
 				<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
 						<thead on:click={(e) => { dataTableSort(e, dataTableModel) }} on:keypress>
 							<tr>
-								<!--
-								<th><input type="checkbox" on:click={(e) => { dataTableSelectAll(e, dataTableModel) }} /></th>
-								<th data-sort="id">ID</th>
-								-->
 								<th data-sort="last_name">Nachname</th>
 								<th data-sort="first_name">Vorname</th>
 								<th data-sort="active">Aktiv</th>
@@ -145,20 +121,11 @@
 								<th data-sort="latest_first_aid_training">Letzter EHK</th>
 								<th data-sort="next_first_aid_training">Nächster EHK</th>
 								<th data-sort="responded_to_questionaire_at">Fragebogen</th>
-								<!-- <th>Logging</th> -->
 							</tr>
 						</thead>
 						<tbody>
 							{#each $dataTableModel.filtered as row, rowIndex}
 								<tr class:table-row-checked={row.dataTableChecked} aria-rowindex={rowIndex + 1} on:click={() => {selectRow(row)}}>
-								<!--
-									<td role="gridcell" aria-colindex={1} tabindex="0">
-										<input type="checkbox" bind:checked={row.dataTableChecked} />
-									</td>
-									<td role="gridcell" aria-colindex={2} tabindex="0">
-										<em class="opacity-50">{row.id}</em>
-									</td>
-								-->
 									<td role="gridcell" aria-colindex={3} tabindex="0">
 										{row.last_name}
 									</td>
@@ -187,11 +154,6 @@
 									<td role="gridcell" aria-colindex={9} tabindex="0">
 										{row.responded_to_questionaire_at || ""}
 									</td>
-								<!--
-									<td role="gridcell" aria-colindex={10} tabindex="0" class="table-cell-fit">
-										<button class="btn btn-ghost-surface btn-sm" on:click={()=>{console.log(row,rowIndex)}}>Console Log</button>
-									</td>
-								-->
 								</tr>
 							{/each}
 						</tbody>

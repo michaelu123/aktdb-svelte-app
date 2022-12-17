@@ -31,37 +31,43 @@
 	}
 	let textFields = {
 		name: 'Name',
-		email: 'Email',
+		email: 'Email'
 	};
 	let areaFields = {
 		admin_comments: 'Kommentar'
 	};
-	let dateFields = {
-	};
+	let dateFields = {};
 	let boolFields = {
-		needs_first_aid_training: 'EHK',
+		needs_first_aid_training: 'EHK'
 	};
-	let readOnlyFields = {
-	};
+	let readOnlyFields = {};
 	function isChecked(k, m) {
 		let v = m[k];
 		let b = !(v == null || v === false || v == '' || v == '0');
 		return b;
 	}
 	async function saveTeam() {
-		if (team.name.length < 2) {
+		if (!team.name || 
+			team.name.length < 2
+		) {
 			window.alert('Bitte Name eintragen!');
 			return;
 		}
-		if (team.id == null) {
+		const newteam = team.id == null;
+		if (newTeam) {
 			console.log('post DB', team);
 			team.id = await storeTeam('POST', team);
+			teams.push(team);
+			$teamsState.teams = teams;
 		} else {
-			console.log('push DB', team);
+			console.log('put DB', team);
 			await storeTeam('PUT', team);
 		}
-		$teamsState.team = team;
-		goto('/aktdb/teams?from=/team/' + team.id);
+		if (isNewTeam) {
+			goto('/aktdb/team/' + team.id + '?from=/team/' + team.id);
+		} else {
+			goto('/aktdb/teams?from=/team/' + team.id);
+		}
 	}
 	async function removeTeam() {
 		console.log('delete DB', team);
@@ -80,7 +86,7 @@
 	}
 	const members = team.members || [];
 	for (let member of members) {
-		let name = member.last_name + ", " + member.first_name;
+		let name = member.last_name + ', ' + member.first_name;
 		let mpt = member.project_team_member;
 		let id = mpt.id;
 		let memberId = member.id;
@@ -88,7 +94,16 @@
 		let link = '/aktdb/member/' + memberId;
 		let role = mpt.member_role_title;
 		let desc = mpt.admin_comments;
-		relations.push({ name: name, link: link, id: id, memberId: memberId, teamId: teamId, role: role, desc: desc, dataTableChecked: false });
+		relations.push({
+			name: name,
+			link: link,
+			id: id,
+			memberId: memberId,
+			teamId: teamId,
+			role: role,
+			desc: desc,
+			dataTableChecked: false
+		});
 	}
 	relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
 
@@ -112,9 +127,9 @@
 			oldRelations.push(relation.name);
 		}
 		let possibleMembers2 = []; // members of which team is not a team
-		console.log("possm", allMembers);
 		for (let member of allMembers) {
-			member.name = member.last_name + ", " + member.first_name;
+			if (!member.active) continue;
+			member.name = member.last_name + ', ' + member.first_name;
 			if (!oldRelations.includes(member.name)) {
 				possibleMembers2.push(member);
 			}
@@ -152,14 +167,13 @@
 		relationChanges = 0;
 	}
 	async function saveRelation() {
-		console.log('saveRelation', {...relation});
 		if (relation.name.length < 2 || relation.role.length < 2) {
 			window.alert('Formular unvollständig!');
 			return;
 		}
 		if (action == 'changing') {
 			console.log('DB put', relation);
-			await storeRelation("PUT", relation);
+			await storeRelation('PUT', relation);
 			let i = relations.findIndex((m) => m.name == relation.name);
 			relations[i] = relation;
 			$dataTableModel.source = relations;
@@ -169,7 +183,7 @@
 			relation.memberId = $membersState.members[x].id;
 			relation.teamId = team.id;
 			console.log('DB post', relation);
-			relation.id = await storeRelation("POST", relation);
+			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
 			$dataTableModel.source = relations;
@@ -184,7 +198,12 @@
 </script>
 
 {#if withDetails}
-	<div>
+	{#if !team.id}
+		<h2 class="text-center p-2">Daten für neues Team</h2>
+	{:else}
+		<h2>Team Info</h2>
+	{/if}
+	<div class="card p-1">
 		<form on:submit|preventDefault class="mt-8">
 			{#each Object.keys(textFields) as key (key)}
 				<label class="grid grid-cols-6 items-center m-2">
@@ -245,14 +264,16 @@
 				class="btn bg-gray-400 mr-8"
 				on:click={() => saveTeam(team)}>Speichern</button
 			>
-			{#if is_admin}
+			{#if is_admin && team.id}
 				<button
 					class="btn bg-gray-400 mr-8"
 					on:click={() => {
 						removeTeam();
 					}}>Team löschen</button
 				>
-				<button class="btn bg-gray-400 mr-8" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
+				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
+					>Mitgliedschaft hinzufügen</button
+				>
 			{/if}
 		</div>
 	</div>
@@ -268,73 +289,80 @@
 		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 	</div>
 {/if}
-<div>
-	<section class="card !bg-accent-500/5">
-		<h2 class="py-5">Mitgliedschaften</h2>
-		<div class="">
-			{#if action == 'changing'}
-				<h4>Mitgliedschaft ändern</h4>
-			{:else if action == 'adding'}
-				<h4>Mitgliedschaft hinzufügen</h4>
-			{:else if action == 'showing'}
-				<h4>Mitgliedschaft Info</h4>
-			{/if}
 
-			{#if action}
-				<div class="card">
-					<form on:submit|preventDefault class="mx-8 p-8">
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">Mitglied</span>
-							{#if action == 'showing' || action == 'changing'}
-								<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
-							{:else}
-								<select class="col-span-4 form-select" bind:value={relation.name}>
-									<option value="-">-</option>
-									{#each possibleMembers($membersState.members) as member}
-										<option value={member.name}>{member.name}</option>
-									{/each}
-								</select>
-							{/if}
-						</label>
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">Funktion</span>
-							{#if action == 'showing'}
-								<input disabled class="col-span-4 form-input" type="text" value={relation.role} />
-							{:else}
-								<select class="col-span-4 form-select" bind:value={relation.role}>
-									{#if action == 'adding'}
+{#if team.id}
+	<div>
+		<section class="card !bg-accent-500/5">
+			<h2 class="py-5">Mitgliedschaften</h2>
+			<div class="">
+				{#if action == 'changing'}
+					<h4>Mitgliedschaft ändern</h4>
+				{:else if action == 'adding'}
+					<h4>Mitgliedschaft hinzufügen</h4>
+				{:else if action == 'showing'}
+					<h4>Mitgliedschaft Info</h4>
+				{/if}
+
+				{#if action}
+					<div class="card">
+						<form on:submit|preventDefault class="mx-8 p-8">
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">Mitglied</span>
+								{#if action == 'showing' || action == 'changing'}
+									<input disabled class="col-span-4 form-input" type="text" value={relation.name} />
+								{:else}
+									<select class="col-span-4 form-select" bind:value={relation.name}>
 										<option value="-">-</option>
-									{/if}
-									<option value="Mitglied">Mitglied</option>
-									<option value="Formales Mitglied">Formales Mitglied</option>
-									<option value="Vorsitz">Vorsitz</option>
-								</select>
-							{/if}
-						</label>
-						<label class="grid grid-cols-6 items-center m-2">
-							<span class="col-span-2">Kommentar</span>
-							{#if action == 'showing'}
-								<textarea disabled class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
-							{:else}
-								<textarea class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
-							{/if}
-						</label>
-					</form>
-				</div>
+										{#each possibleMembers($membersState.members) as member}
+											<option value={member.name}>{member.name}</option>
+										{/each}
+									</select>
+								{/if}
+							</label>
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">Funktion</span>
+								{#if action == 'showing'}
+									<input disabled class="col-span-4 form-input" type="text" value={relation.role} />
+								{:else}
+									<select class="col-span-4 form-select" bind:value={relation.role}>
+										{#if action == 'adding'}
+											<option value="-">-</option>
+										{/if}
+										<option value="Mitglied">Mitglied</option>
+										<option value="Formales Mitglied">Formales Mitglied</option>
+										<option value="Vorsitz">Vorsitz</option>
+									</select>
+								{/if}
+							</label>
+							<label class="grid grid-cols-6 items-center m-2">
+								<span class="col-span-2">Kommentar</span>
+								{#if action == 'showing'}
+									<textarea
+										disabled
+										class="col-span-4 form-input"
+										rows="2"
+										bind:value={relation.desc}
+									/>
+								{:else}
+									<textarea class="col-span-4 form-input" rows="2" bind:value={relation.desc} />
+								{/if}
+							</label>
+						</form>
+					</div>
+				{/if}
+			</div>
+			{#if relationChanges > 1}
+				<button on:click={saveRelation} class="btn bg-gray-400"
+					>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
+				>
 			{/if}
-		</div>
-		{#if relationChanges > 1}
-			<button on:click={saveRelation} class="btn bg-gray-400"
-				>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
-			>
-		{/if}
-	</section>
-	<section class="card !bg-accent-500/5">
-		<!-- Table -->
-		<div class="card-body">
-			<div class="table-container">
-				<!-- prettier-ignore -->
-				<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
+		</section>
+		<section class="card !bg-accent-500/5">
+			<!-- Table -->
+			<div class="card-body">
+				<div class="table-container">
+					<!-- prettier-ignore -->
+					<table class="table table-hover" role="grid" use:tableInteraction use:tableA11y>
 					<thead>
 						<tr>
 							<!--
@@ -364,7 +392,8 @@
 						{/each}
 					</tbody>
 				</table>
+				</div>
 			</div>
-		</div>
-	</section>
-</div>
+		</section>
+	</div>
+{/if}
