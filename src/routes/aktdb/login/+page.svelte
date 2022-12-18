@@ -62,22 +62,24 @@
 	{#if $navigating || loading}
 		<ProgressBar />
 	{:else}
-		<h1>Login</h1>
-		<form on:submit|preventDefault>
-			<label for="email" class="my-5">
-				<span>Email</span>
-				<input type="email" id="email" bind:value={email} />
-			</label>
-			<label for="password">
-				<span>Passwort</span>
-				<input type="password" id="password" bind:value={password} />
-			</label>
-			{#if error}
-				<p class="bg-red-200 mt-8">{error}</p>
-			{/if}
-			<button type="submit" class="btn bg-gray-300 mt-8 hover:bg-gray-400" on:click={login}
-				>Einloggen</button
-			>
-		</form>
+		<div class="card card-body">
+			<h1>Login</h1>
+			<form on:submit|preventDefault>
+				<label for="email" class="my-5">
+					<span>Email</span>
+					<input type="email" id="email" bind:value={email} />
+				</label>
+				<label for="password">
+					<span>Passwort</span>
+					<input type="password" id="password" bind:value={password} />
+				</label>
+				{#if error}
+					<p class="bg-red-200 mt-8">{error}</p>
+				{/if}
+				<button type="submit" class="btn mt-8" on:click={login}
+					>Einloggen</button
+				>
+			</form>
+		</div>
 	{/if}
 </main>

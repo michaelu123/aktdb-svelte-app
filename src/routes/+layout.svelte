@@ -2,7 +2,7 @@
 	import '@brainandbones/skeleton/themes/theme-skeleton.css';
 	import '@brainandbones/skeleton/styles/all.css';
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@brainandbones/skeleton';
+	import { AppShell, AppBar, LightSwitch } from '@brainandbones/skeleton';
 	/** @type {import('./$types').PageLoad} */
 	import { credsStore } from '$lib/stores.js';
 	import { goto } from '$app/navigation';
@@ -23,9 +23,10 @@
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 			<ul class="flex">
-				<li><a class="btn mx-2 bg-gray-400 text-2xl" href="/aktdb/members">Mitglieder</a></li>
-				<li><a class="btn mx-2 bg-gray-400 text-2xl" href="/aktdb/teams">Teams</a></li>
-				<li><button class="btn mx-2 bg-gray-400 text-2xl" on:click="{logout}">Logout</button></li>
+				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/aktdb/members">Mitglieder</a></li>
+				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/aktdb/teams">Teams</a></li>
+				<li><button class="btn  btn-filled-surface mx-2 text-2xl" on:click="{logout}">Logout</button></li>
+				<li><LightSwitch class="mt-3"/></li>
 			</ul>
 			</svelte:fragment>
 		</AppBar>

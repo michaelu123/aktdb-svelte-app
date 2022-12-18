@@ -85,7 +85,7 @@
 	}
 </script>
 
-<div class="px-6 py-8 bg-gray-100">
+<div class="px-6 py-8">
 	<section class="card !bg-accent-500/5">
 		<!-- Search Input -->
 		<div class="card-header flex">
@@ -161,5 +161,5 @@
 	</section>
 </div>
 <div>
-	<button class="btn bg-gray-400 mt-4" on:click={newMember}>Neuer Eintrag</button>
+	<button class="btn m-4 btn-filled-surface" on:click={newMember}>Neuer Eintrag</button>
 </div>

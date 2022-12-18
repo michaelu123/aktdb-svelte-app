@@ -276,7 +276,7 @@
 		</form>
 		<div class="flex my-10">
 			<button
-				class="btn bg-gray-400 mr-8"
+				class="btn btn-filled-surface mr-8"
 				on:click={() => {
 					$membersState.member = null;
 					goto('/aktdb/members?from=/member/' + member.id);
@@ -284,19 +284,19 @@
 			>
 			<button
 				disabled={memberChanges <= 1}
-				class="btn bg-gray-400 mr-8"
+				class="btn btn-filled-surface mr-8"
 				on:click={() => saveMember(member)}>Speichern</button
 			>
 			{#if is_admin && member.id}
 				<button
-					class="btn bg-gray-400 mr-8"
+					class="btn btn-filled-surface mr-8"
 					on:click={() => {
 						removeMember();
 					}}>Mitglied löschen</button
 				>
 			{/if}
 			{#if member.id}
-				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
+				<button class="btn btn-filled-surface mr-8" on:click={addRelation}
 					>Mitgliedschaft hinzufügen</button
 				>
 			{/if}
@@ -305,13 +305,13 @@
 {:else}
 	<div class="flex my-10">
 		<button
-			class="btn bg-gray-400 mr-8"
+			class="btn btn-filled-surface mr-8"
 			on:click={() => {
 				$membersState.member = null;
 				goto('/aktdb/members?from=/member/' + member.id);
 			}}>Zurück</button
 		>
-		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
+		<button class="btn btn-filled-surface" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 	</div>
 {/if}
 
@@ -379,7 +379,7 @@
 				{/if}
 			</div>
 			{#if relationChanges > 1}
-				<button on:click={saveRelation} class="btn bg-gray-400"
+				<button on:click={saveRelation} class="btn btn-filled-surface"
 					>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
 				>
 			{/if}
@@ -412,9 +412,9 @@
 										{row.role}
 									</td>
 									<td role="gridcell">
-										<button class="btn" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
-										<button class="btn" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
-										<button class="btn" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
+										<button class="btn btn-filled-surface" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
+										<button class="btn btn-filled-surface" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
+										<button class="btn btn-filled-surface" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
 									</td>
 								{:else}
 									<td role="gridcell" aria-colindex={0} tabindex="0">

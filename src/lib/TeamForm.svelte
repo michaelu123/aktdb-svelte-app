@@ -242,7 +242,7 @@
 		</form>
 		<div class="flex my-10">
 			<button
-				class="btn bg-gray-400 mr-8"
+				class="btn btn-filled-surface"
 				on:click={() => {
 					$teamsState.team = null;
 					goto('/aktdb/teams?from=/team/' + team.id);
@@ -250,19 +250,19 @@
 			>
 			<button
 				disabled={teamChanges <= 1}
-				class="btn bg-gray-400 mr-8"
+				class="btn btn-filled-surface mr-8"
 				on:click={() => saveTeam(team)}>Speichern</button
 			>
 			{#if is_admin && team.id}
 				<button
-					class="btn bg-gray-400 mr-8"
+					class="btn btn-filled-surface mr-8"
 					on:click={() => {
 						removeTeam();
 					}}>Team löschen</button
 				>
 			{/if}
 			{#if team.id}
-				<button class="btn bg-gray-400 mr-8" on:click={addRelation}
+				<button class="btn btn-filled-surface mr-8" on:click={addRelation}
 					>Mitgliedschaft hinzufügen</button
 				>
 			{/if}
@@ -271,13 +271,13 @@
 {:else}
 	<div class="flex my-10">
 		<button
-			class="btn bg-gray-400 mr-8"
+			class="btn btn-filled-surface mr-8"
 			on:click={() => {
 				$teamsState.team = null;
 				goto('/aktdb/teams?from=/team/' + team.id);
 			}}>Zurück</button
 		>
-		<button class="btn bg-gray-400" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
+		<button class="btn btn-filled-surface" on:click={addRelation}>Mitgliedschaft hinzufügen</button>
 	</div>
 {/if}
 
@@ -343,7 +343,7 @@
 				{/if}
 			</div>
 			{#if relationChanges > 1}
-				<button on:click={saveRelation} class="btn bg-gray-400"
+				<button on:click={saveRelation} class="btn btn-filled-surface"
 					>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
 				>
 			{/if}
@@ -375,9 +375,9 @@
 									{row.role}
 								</td>
 								<td role="gridcell">
-									<button class="btn" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
-									<button class="btn" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
-									<button class="btn" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
+									<button class="btn btn-filled-surface" on:click={()=> {showRelation(row)}}>{@html eyeIcon}</button>
+									<button class="btn btn-filled-surface" on:click={()=> {removeRelation(row)}}>{@html deleteIcon}</button>
+									<button class="btn btn-filled-surface" on:click={()=> {changeRelation(row)}}>{@html editIcon}</button>
 								</td>
 							</tr>
 						{/each}

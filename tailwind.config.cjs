@@ -1,5 +1,5 @@
 const config = {
-	darkmode: 'class',
+	darkMode: 'class',
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
 		require('path').join(require.resolve('@brainandbones/skeleton'), '../**/*.{html,js,svelte,ts}')
@@ -10,12 +10,6 @@ const config = {
 			ignore: []
 		},
 		extend: {
-			fontFamily: {
-				ueberschrift: ['Oswald']
-			},
-			colors: {
-				hauptfarbe: '#212f49'
-			}
 		}
 	},
 
