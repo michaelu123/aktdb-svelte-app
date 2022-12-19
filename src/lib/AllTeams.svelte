@@ -49,7 +49,7 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		await goto('/aktdb/team/' + team.id + '?from=/aktdb/teams');
+		await goto('/team/' + team.id + '?from=/teams');
 	}
 
 	async function newTeam() {
@@ -61,7 +61,7 @@
 			offset: $dataTableModel.pagination.offset,
 			limit: $dataTableModel.pagination.limit
 		});
-		await goto('/aktdb/newteam?from=/aktdb/teams');
+		await goto('/newteam?from=/teams');
 	}
 
 	function dataFilter(store) {

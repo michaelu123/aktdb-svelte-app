@@ -57,17 +57,17 @@
 			team.id = await storeTeam('POST', team);
 			teams.push(team);
 			$teamsState.teams = teams;
-			goto('/aktdb/team/' + team.id + '?from=/team/' + team.id);
+			goto('/team/' + team.id + '?from=/team/' + team.id);
 		} else {
 			await storeTeam('PUT', team);
-			goto('/aktdb/teams?from=/team/' + team.id);
+			goto('/teams?from=/team/' + team.id);
 		}
 	}
 	async function removeTeam() {
 		await deleteTeam(team.id);
 		$teamsState.team = null;
 		$teamsState.teams = $teamsState.teams.filter((m) => m.id != team.id);
-		goto('/aktdb/teams');
+		goto('/teams');
 	}
 
 	// now for the members
@@ -84,7 +84,7 @@
 		let id = mpt.id;
 		let memberId = member.id;
 		let teamId = team.id;
-		let link = '/aktdb/member/' + memberId;
+		let link = '/member/' + memberId;
 		let role = mpt.member_role_title;
 		let desc = mpt.admin_comments;
 		relations.push({
@@ -171,7 +171,7 @@
 			let x = $membersState.members.findIndex((t) => t.name == relation.name);
 			relation.memberId = $membersState.members[x].id;
 			relation.teamId = team.id;
-			relation.link = '/aktdb/member/' + relation.memberId;
+			relation.link = '/member/' + relation.memberId;
 			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -181,7 +181,7 @@
 		action = null;
 		relationChanges = 0;
 		if (!withDetails) {
-			goto('/aktdb/team/' + team.id + '?from=/team/' + team.id, { invalidateAll: true });
+			goto('/team/' + team.id + '?from=/team/' + team.id, { invalidateAll: true });
 		}
 	}
 </script>
@@ -245,7 +245,7 @@
 				class="btn btn-filled-surface"
 				on:click={() => {
 					$teamsState.team = null;
-					goto('/aktdb/teams?from=/team/' + team.id);
+					goto('/teams?from=/team/' + team.id);
 				}}>{teamChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
 			>
 			<button
@@ -274,7 +274,7 @@
 			class="btn btn-filled-surface mr-8"
 			on:click={() => {
 				$teamsState.team = null;
-				goto('/aktdb/teams?from=/team/' + team.id);
+				goto('/teams?from=/team/' + team.id);
 			}}>Zurück</button
 		>
 		<button class="btn btn-filled-surface" on:click={addRelation}>Mitgliedschaft hinzufügen</button>

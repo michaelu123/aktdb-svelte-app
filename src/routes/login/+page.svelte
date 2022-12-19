@@ -4,7 +4,7 @@
 	let fetch = data.fetch;
 	import { navigating } from '$app/stores';
 	import { ProgressBar } from '@brainandbones/skeleton';
-	import { credsStore, membersState, teamsState } from '../../../lib/stores.js';
+	import { credsStore, membersState, teamsState } from '$lib/stores.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { loadAll } from '$lib/load.js';
@@ -45,9 +45,9 @@
 			url: url,
 			hdrs: hdrs
 		});
-		let nextPage = '/aktdb/members';
+		let nextPage = '/members';
 		if (from.startsWith('?from=')) {
-			nextPage = '/aktdb' + from.substring(6);
+			nextPage = from.substring(6);
 		}
 		loading = true;
 		const res2 = await loadAll(fetch);
@@ -76,7 +76,7 @@
 				{#if error}
 					<p class="bg-red-200 mt-8">{error}</p>
 				{/if}
-				<button type="submit" class="btn mt-8" on:click={login}
+				<button type="submit" class="btn btn-filled-surface mt-8" on:click={login}
 					>Einloggen</button
 				>
 			</form>

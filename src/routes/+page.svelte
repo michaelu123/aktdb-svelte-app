@@ -1,37 +1,15 @@
-<script>
-	import { GradientHeading } from '@brainandbones/skeleton';
-</script>
-
 <div class="container mx-auto p-8 space-y-8">
-	<GradientHeading
-		tag="h1"
-		direction="bg-gradient-to-br"
-		from="from-primary-500"
-		to="to-accent-500"
-	>
-		Homepage
-	</GradientHeading>
-	<p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-	<hr />
 	<section class="card card-body">
-		<p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+		<p>Auf der Seite Mitglieder stehen die Mitglieder und ihre Mitgliedschaft in den Teams, also den Arbeitsgruppen und Ortsgruppen.</p>
+		<p>Auf der Seite Teams stehen die Arbeits- und Ortsgruppen, und ihre jeweiligen Mitglieder.</p>
+		<p>Mit Administratorberechtigung kannst du alles bearbeiten.</p>
+		<p>Als Teamleiter kannst Du nur die Mitglieder deines/deiner Teams bearbeiten. Du kannst aber jedes Mitglied deinem Team zuordnen.</p>
+		<p>Mit dem Schalter in der rechten oberen Ecke kannst Du zwischen hellem und dunklem Thema wechseln.</p>
 	</section>
 	<hr />
 	<section class="flex space-x-2">
-		<a
-			class="btn btn-filled-primary"
-			href="https://kit.svelte.dev/"
-			target="_blank"
-			rel="noreferrer">SvelteKit</a
-		>
-		<a
-			class="btn btn-filled-accent"
-			href="https://tailwindcss.com/"
-			target="_blank"
-			rel="noreferrer">Tailwind</a
-		>
-		<a class="btn btn-filled-tertiary" href="https://github.com/" target="_blank" rel="noreferrer"
-			>GitHub</a
+		<a class="btn btn-filled-tertiary" href="https://github.com/michaelu123/aktdb-svelte-app" target="_blank" rel="noreferrer"
+			>GitHub Repository</a
 		>
 	</section>
 </div>

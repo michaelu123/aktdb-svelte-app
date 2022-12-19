@@ -9,7 +9,7 @@ export async function load({ fetch, params }) {
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
 	if (creds == null) {
-		throw redirect(307, '/aktdb/login?from=/members');
+		throw redirect(307, '/login?from=/teams');
 	}
 	return null;
 }

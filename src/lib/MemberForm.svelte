@@ -83,17 +83,17 @@
 			member.id = await storeMember('POST', member);
 			members.push(member);
 			$membersState.members = members;
-			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id);
+			goto('/member/' + member.id + '?from=/member/' + member.id);
 		} else {
 			await storeMember('PUT', member);
-			goto('/aktdb/members?from=/member/' + member.id);
+			goto('/members?from=/member/' + member.id);
 		}
 	}
 	async function removeMember() {
 		await deleteMember(member.id);
 		$membersState.member = null;
 		$membersState.members = $membersState.members.filter((m) => m.id != member.id);
-		goto('/aktdb/members');
+		goto('/members');
 	}
 
 	// now for the project_teams
@@ -111,7 +111,7 @@
 		let id = tpm.id;
 		let memberId = member.id;
 		let teamId = team.id;
-		let link = '/aktdb/team/' + teamId;
+		let link = '/team/' + teamId;
 		let role = tpm.member_role_title;
 		let desc = tpm.admin_comments;
 		relations.push({
@@ -197,7 +197,7 @@
 			let x = $teamsState.teams.findIndex((t) => t.name == relation.name);
 			relation.teamId = $teamsState.teams[x].id;
 			relation.memberId = member.id;
-			relation.link = '/aktdb/team/' + relation.teamId;
+			relation.link = '/team/' + relation.teamId;
 			relation.id = await storeRelation('POST', relation);
 			relations.push(relation);
 			relations = relations.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -207,7 +207,7 @@
 		action = null;
 		relationChanges = 0;
 		if (!withDetails) {
-			goto('/aktdb/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
+			goto('/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
 		}
 	}
 </script>
@@ -279,7 +279,7 @@
 				class="btn btn-filled-surface mr-8"
 				on:click={() => {
 					$membersState.member = null;
-					goto('/aktdb/members?from=/member/' + member.id);
+					goto('/members?from=/member/' + member.id);
 				}}>{memberChanges <= 1 ? 'Zurück' : 'Nicht Speichern'}</button
 			>
 			<button
@@ -308,7 +308,7 @@
 			class="btn btn-filled-surface mr-8"
 			on:click={() => {
 				$membersState.member = null;
-				goto('/aktdb/members?from=/member/' + member.id);
+				goto('/members?from=/member/' + member.id);
 			}}>Zurück</button
 		>
 		<button class="btn btn-filled-surface" on:click={addRelation}>Mitgliedschaft hinzufügen</button>

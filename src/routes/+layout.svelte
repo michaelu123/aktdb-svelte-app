@@ -9,7 +9,7 @@
 
 	function logout() {
 		credsStore.set(null)
-		goto("/aktdb", { invalidateAll: true });
+		goto("/", { invalidateAll: true });
 	}
 </script>
 
@@ -23,8 +23,8 @@
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 			<ul class="flex">
-				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/aktdb/members">Mitglieder</a></li>
-				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/aktdb/teams">Teams</a></li>
+				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/members">Mitglieder</a></li>
+				<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/teams">Teams</a></li>
 				<li><button class="btn  btn-filled-surface mx-2 text-2xl" on:click="{logout}">Logout</button></li>
 				<li><LightSwitch class="mt-3"/></li>
 			</ul>
