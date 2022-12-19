@@ -58,6 +58,8 @@
 	}
 </script>
 
+<svelte:head><title>AktivenDB Login</title></svelte:head>
+
 <main class="debug-screens">
 	{#if $navigating || loading}
 		<ProgressBar />

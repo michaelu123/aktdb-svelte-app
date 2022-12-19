@@ -6,6 +6,8 @@
 	import { ProgressBar } from '@brainandbones/skeleton';
 </script>
 
+<svelte:head><title>AktivenDB Mitglied</title></svelte:head>
+
 <main class="debug-screens">
 	{#if $navigating}
 		<ProgressBar />

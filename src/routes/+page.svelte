@@ -1,3 +1,5 @@
+<svelte:head><title>AktivenDB</title></svelte:head>
+
 <div class="container mx-auto p-8 space-y-8">
 	<section class="card card-body">
 		<p>Auf der Seite Mitglieder stehen die Mitglieder und ihre Mitgliedschaft in den Teams, also den Arbeitsgruppen und Ortsgruppen.</p>
