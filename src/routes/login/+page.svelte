@@ -78,8 +78,7 @@
 				{#if error}
 					<p class="bg-red-200 mt-8">{error}</p>
 				{/if}
-				<button type="submit" class="btn btn-filled-surface mt-8" on:click={login}
-					>Einloggen</button
+				<button type="submit" class="btn btn-filled-surface mt-8" on:click={login}>Einloggen</button
 				>
 			</form>
 		</div>

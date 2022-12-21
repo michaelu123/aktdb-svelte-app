@@ -119,38 +119,38 @@ export async function deleteMember(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/member/' + id + '?token=' + creds.token;
-	const resp = await fetch(url, {
-		method: "DELETE",
+	resp = await fetch(url, {
+		method: 'DELETE',
 		headers: creds.hdrs
 	});
 }
 
 const omitTeamFields = ['id', 'updated_at', 'with_details', 'with_detals'];
 export async function storeTeam(method, team) {
-		let creds = getCreds();
-		const baseUrl = creds.url;
-		let t = { ...team };
+	let creds = getCreds();
+	const baseUrl = creds.url;
+	let t = { ...team };
 
-		let url = baseUrl + '/api/project-team';
-		if (method == 'PUT') {
-			url += '/' + t.id;
+	let url = baseUrl + '/api/project-team';
+	if (method == 'PUT') {
+		url += '/' + t.id;
+	}
+	url += '?token=' + creds.token;
+	for (let key of Object.keys(team)) {
+		if (t[key] == '') {
+			t[key] = null;
 		}
-		url += '?token=' + creds.token;
-		for (let key of Object.keys(team)) {
-			if (t[key] == '') {
-				t[key] = null;
-			}
-		}
-		for (let key of omitTeamFields) {
-			delete t[key];
-		}
-		const resp = await fetch(url, {
-			method: method,
-			headers: creds.hdrs,
-			body: JSON.stringify(t)
-		});
-		const res = await resp.json();
-		return res.id;
+	}
+	for (let key of omitTeamFields) {
+		delete t[key];
+	}
+	const resp = await fetch(url, {
+		method: method,
+		headers: creds.hdrs,
+		body: JSON.stringify(t)
+	});
+	const res = await resp.json();
+	return res.id;
 }
 
 export async function deleteTeam(id) {
@@ -158,7 +158,7 @@ export async function deleteTeam(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/project-team/' + id + '?token=' + creds.token;
-	const resp = await fetch(url, {
+	await fetch(url, {
 		method: 'DELETE',
 		headers: creds.hdrs
 	});
@@ -173,8 +173,8 @@ export async function storeRelation(method, relation) {
 		url += '/' + relation.id;
 	}
 	url += '?token=' + creds.token;
-	let roleId = 0; 
-	if (relation.role == "Mitglied") roleId = 2;
+	let roleId = 0;
+	if (relation.role == 'Mitglied') roleId = 2;
 	else if (relation.role == 'Vorsitz') roleId = 1;
 	else if (relation.role == 'Formales Mitglied') roleId = 3;
 	const r = {
@@ -198,7 +198,7 @@ export async function deleteRelation(id) {
 	const baseUrl = creds.url;
 
 	let url = baseUrl + '/api/project-team-member/' + id + '?token=' + creds.token;
-	const resp = await fetch(url, {
+	await fetch(url, {
 		method: 'DELETE',
 		headers: creds.hdrs
 	});

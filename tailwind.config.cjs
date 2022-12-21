@@ -9,8 +9,7 @@ const config = {
 			position: ['top', 'left'],
 			ignore: []
 		},
-		extend: {
-		}
+		extend: {}
 	},
 
 	plugins: [

@@ -47,9 +47,7 @@
 		return b;
 	}
 	async function saveTeam() {
-		if (!team.name || 
-			team.name.length < 2
-		) {
+		if (!team.name || team.name.length < 2) {
 			window.alert('Bitte Name eintragen!');
 			return;
 		}
