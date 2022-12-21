@@ -1,15 +1,15 @@
-// @ts-nocheck
-
-/** @type {import('./$types').PageLoad} */
+import { invalidate } from '$app/navigation';
 import { credsStore } from '$lib/stores.js';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ fetch, params }) {
+export async function load({ url }) {
 	let creds;
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
 	if (creds == null) {
-		throw redirect(307, '/login?from=/teams');
+		if (url.pathname != '/login') {
+			throw redirect(307, '/login?from=/members');
+		}
 	}
 	return null;
 }

@@ -1,0 +1,5 @@
+nvm auf linux installieren:
+Siehe https://www.tricd.de/server/node-und-npm-auf-einem-strato-managed-server-installieren/
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+
+Dann nvm install 16.16.0
