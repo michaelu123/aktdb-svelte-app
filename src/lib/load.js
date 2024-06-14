@@ -60,7 +60,7 @@ export async function loadMember(fetch, id) {
 	});
 	const member = await resp.json();
 	for (let key of Object.keys(member)) {
-		if (member[key] == null) {
+		if (member[key] == null || member[key] == 'undef@undef.de') {
 			member[key] = '';
 		}
 	}
@@ -78,7 +78,7 @@ export async function loadTeam(fetch, id) {
 	});
 	const team = await resp.json();
 	for (let key of Object.keys(team)) {
-		if (team[key] == null) {
+		if (team[key] == null || team[key] == 'undef@undef.de') {
 			team[key] = '';
 		}
 	}

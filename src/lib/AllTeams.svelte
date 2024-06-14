@@ -128,5 +128,5 @@
 	</section>
 </div>
 <div>
-	<button class="btn m-4 btn-filled-surface" on:click={newTeam}>Neuer Eintrag</button>
+	<button class="btn m-4 btn-filled-surface" on:click={newTeam}>Neues Team</button>
 </div>

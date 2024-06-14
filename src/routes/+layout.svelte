@@ -11,6 +11,10 @@
 		credsStore.set(null);
 		goto('/', { invalidateAll: true });
 	}
+	function login() {
+		credsStore.set(null);
+		goto('/login', { invalidateAll: true });
+	}
 </script>
 
 <AppShell slotSidebarLeft="bg-surface-500/5 w-56 p-4">
@@ -26,7 +30,12 @@
 					<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/members">Mitglieder</a></li>
 					<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/teams">Teams</a></li>
 					<li>
-						<button class="btn  btn-filled-surface mx-2 text-2xl" on:click={logout}>Logout</button>
+						{#if !$credsStore || !$credsStore.token}
+							<button class="btn  btn-filled-surface mx-2 text-2xl" on:click={login}>Login</button>
+						{:else}
+							<button class="btn  btn-filled-surface mx-2 text-2xl" on:click={logout}>Logout</button
+							>
+						{/if}
 					</li>
 					<li><LightSwitch class="mt-3" /></li>
 				</ul>
