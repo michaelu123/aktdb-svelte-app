@@ -12,3 +12,5 @@ export async function load({ url }) {
 	}
 	return null;
 }
+
+export const ssr = false;

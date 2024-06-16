@@ -6,6 +6,7 @@ function getCreds() {
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
 	if (creds == null) {
+		console.log('5redir');
 		throw redirect(307, '/login?from=/members');
 	}
 	return creds;
@@ -202,4 +203,57 @@ export async function deleteRelation(id) {
 		method: 'DELETE',
 		headers: creds.hdrs
 	});
+}
+
+function parse(data) {
+	if (typeof data.record_new !== 'string') return data;
+	try {
+		data.record_new = JSON.parse(data.record_new);
+		data.record_old = JSON.parse(data.record_old);
+		for (const prop in data) {
+			if (prop.endsWith('_id')) {
+				data[prop] = data[prop].toString();
+			}
+		}
+		for (const prop in data.record_new) {
+			if (prop.endsWith('_id')) {
+				data.record_new[prop] = data.record_new[prop].toString();
+			}
+		}
+		for (const prop in data.record_old) {
+			if (prop.endsWith('_id')) {
+				data.record_old[prop] = data.record_old[prop].toString();
+			}
+		}
+		// eslint-disable-next-line no-empty
+	} catch (e) {}
+	return data;
+}
+
+import hist from '$lib/history.json';
+export async function loadHistoryRange(fetch, beginn, ende) {
+	let histArr = hist[2].data;
+	let res = [];
+	for (let histRow of histArr) {
+		const updated = histRow.updated_at;
+		if (updated >= beginn && updated <= ende) {
+			let event = parse(histRow);
+			res.push(event);
+			if (res.length > 10) break;
+		}
+	}
+	return res;
+}
+
+export async function loadHistory(fetch, table, id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+	const url = baseUrl + '/api/history/' + table + '/' + id + '?token=' + creds.token;
+
+	const resp = await fetch(url, {
+		method: 'GET',
+		headers: creds.hdrs
+	});
+	const hist = await resp.json();
+	return hist;
 }

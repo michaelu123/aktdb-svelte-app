@@ -22,3 +22,4 @@ aktdb.creds
 src/routes/aktdb/+page.js
 node_modules/@brainandbones/skeleton/utilities/xxx
 debug.log
+history.json

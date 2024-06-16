@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
 
-export let credsStore = persisted('creds', null);
-export let membersState = writable({
+export let credsStore = persisted('creds', { is_admin: false });
+export let membersState = persisted('members', {
 	mustBeActive: true,
 	withDetails: true,
 	search: '',
@@ -11,7 +11,7 @@ export let membersState = writable({
 	offset: 0,
 	limit: 10
 });
-export let teamsState = writable({
+export let teamsState = persisted('teams', {
 	withDetails: true,
 	search: '',
 	teams: null,
@@ -19,3 +19,4 @@ export let teamsState = writable({
 	offset: 0,
 	limit: 10
 });
+console.log('stores inited');

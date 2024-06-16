@@ -27,8 +27,10 @@
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<ul class="flex">
-					<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/members">Mitglieder</a></li>
-					<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/teams">Teams</a></li>
+					{#if $credsStore && $credsStore.token}
+						<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/members">Mitglieder</a></li>
+						<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/teams">Teams</a></li>
+					{/if}
 					<li>
 						{#if !$credsStore || !$credsStore.token}
 							<button class="btn  btn-filled-surface mx-2 text-2xl" on:click={login}>Login</button>

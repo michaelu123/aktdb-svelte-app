@@ -9,6 +9,7 @@
 	import { page } from '$app/stores';
 	import { loadAll } from '$lib/load.js';
 
+	console.log('1login');
 	const url = 'https://aktivendb.adfc-muenchen.de';
 	const urlLogin = url + '/auth/login';
 	const hdrs = {
@@ -22,6 +23,7 @@
 	let loading;
 
 	async function login() {
+		console.log('2login');
 		let from = $page.url.search || ''; // from where we redirected to login
 
 		let body = JSON.stringify({ email: email, password: password });

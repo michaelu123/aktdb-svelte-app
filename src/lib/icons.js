@@ -3,9 +3,6 @@ export const deleteIcon =
 
 export const editIcon =
 	'\
-<?xml version="1.0" encoding="iso-8859-1"?>\
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\
 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" \
 	 viewBox="0 0 59.985 59.985" style="enable-background:new 0 0 59.985 59.985;" xml:space="preserve">\
 <path d="M59.985,7c0-1.87-0.728-3.627-2.05-4.949S54.855,0,52.985,0s-3.627,0.729-4.95,2.051l-1.414,1.414l-4.243,4.242l0,0\
@@ -20,9 +17,6 @@ export const editIcon =
 
 export const eyeIcon =
 	'\
-<?xml version="1.0" encoding="iso-8859-1"?>\
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\
 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"\
 	 viewBox="0 0 224.549 224.549" style="enable-background:new 0 0 224.549 224.549;" xml:space="preserve">\
 <g>\

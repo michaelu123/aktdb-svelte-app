@@ -210,6 +210,9 @@
 			goto('/member/' + member.id + '?from=/member/' + member.id, { invalidateAll: true });
 		}
 	}
+	async function historyMember() {
+		await goto('/history/member=' + member.id);
+	}
 </script>
 
 {#if withDetails}
@@ -300,6 +303,14 @@
 					>Mitgliedschaft hinzufügen</button
 				>
 			{/if}
+			{#if is_admin && member.id}
+				<button
+					class="btn btn-filled-surface mr-8"
+					on:click={() => {
+						historyMember();
+					}}>Geschichte</button
+				>
+			{/if}
 		</div>
 	</div>
 {:else}
@@ -318,8 +329,8 @@
 {#if member.id}
 	<div>
 		<section class="card !bg-accent-500/5">
-			<h2 class="py-5">Mitgliedschaften</h2>
-			<div class="">
+			<h2 class="px-5 py-5">Mitgliedschaften</h2>
+			<div class="px-5">
 				{#if action == 'changing'}
 					<h4>Mitgliedschaft ändern</h4>
 				{:else if action == 'adding'}
@@ -379,7 +390,7 @@
 				{/if}
 			</div>
 			{#if relationChanges > 1}
-				<button on:click={saveRelation} class="btn btn-filled-surface"
+				<button on:click={saveRelation} class="btn btn-filled-surface mx-8"
 					>{action == 'adding' ? 'Jetzt hinzufügen' : 'Jetzt ändern'}</button
 				>
 			{/if}
