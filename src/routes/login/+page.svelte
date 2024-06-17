@@ -9,7 +9,6 @@
 	import { page } from '$app/stores';
 	import { loadAll } from '$lib/load.js';
 
-	console.log('1login');
 	const url = 'https://aktivendb.adfc-muenchen.de';
 	const urlLogin = url + '/auth/login';
 	const hdrs = {
@@ -23,7 +22,6 @@
 	let loading;
 
 	async function login() {
-		console.log('2login');
 		let from = $page.url.search || ''; // from where we redirected to login
 
 		let body = JSON.stringify({ email: email, password: password });
@@ -55,7 +53,9 @@
 		const res2 = await loadAll(fetch);
 		loading = false;
 		$membersState.members = res2.members;
+		$membersState.memberNames = res2.memberNames;
 		$teamsState.teams = res2.teams;
+		$teamsState.teamNames = res2.teamNames;
 		await goto(nextPage, { replaceState: true });
 	}
 </script>

@@ -6,11 +6,28 @@ function getCreds() {
 	let unsub = credsStore.subscribe((v) => (creds = v));
 	unsub();
 	if (creds == null) {
-		console.log('5redir');
 		throw redirect(307, '/login?from=/members');
 	}
 	return creds;
 }
+
+export let memberNames = {};
+export let teamNames = {
+	// deleted records not fetched from API call
+	22: 'AG Radfahrschule',
+	29: 'AG Leitungen',
+	30: 'Test AG',
+	31: 'Test',
+	32: 'Test',
+	33: 'Test ML',
+	34: 'AG Tagestouren',
+	36: 'test',
+	37: 'Test',
+	38: 'Test',
+	44: 'Test',
+	63: 'TEST2',
+	64: 'OG Ismaning Test'
+};
 
 export async function loadAll(fetch) {
 	let creds = getCreds();
@@ -28,6 +45,7 @@ export async function loadAll(fetch) {
 				member[key] = '';
 			}
 		}
+		memberNames[member.id.toString()] = member.last_name + ', ' + member.first_name;
 	}
 
 	const urlT = baseUrl + '/api/project-teams?token=';
@@ -42,11 +60,13 @@ export async function loadAll(fetch) {
 				team[key] = '';
 			}
 		}
+		teamNames[team.id.toString()] = team.name;
 	}
-
 	return {
-		members: members,
-		teams: teams
+		members,
+		teams,
+		memberNames,
+		teamNames
 	};
 }
 
@@ -239,7 +259,7 @@ export async function loadHistoryRange(fetch, beginn, ende) {
 		if (updated >= beginn && updated <= ende) {
 			let event = parse(histRow);
 			res.push(event);
-			if (res.length > 10) break;
+			if (res.length >= 10) break;
 		}
 	}
 	return res;
@@ -254,6 +274,28 @@ export async function loadHistory(fetch, table, id) {
 		method: 'GET',
 		headers: creds.hdrs
 	});
-	const hist = await resp.json();
-	return hist;
+	let histArr = await resp.json();
+	for (let i in histArr) {
+		histArr[i] = parse(histArr[i]);
+	}
+	return histArr;
+}
+
+let users = {};
+export async function getUserFromApi(fetch, id) {
+	let creds = getCreds();
+	const baseUrl = creds.url;
+	const url = baseUrl + '/api/user/' + id + '?token=' + creds.token;
+
+	id = id.toString();
+	let user = users[id];
+	if (user != null) return user;
+	const resp = await fetch(url, {
+		method: 'GET',
+		headers: creds.hdrs
+	});
+
+	user = await resp.json();
+	users[id] = user;
+	return user;
 }

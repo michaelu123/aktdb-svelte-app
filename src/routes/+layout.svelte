@@ -30,6 +30,11 @@
 					{#if $credsStore && $credsStore.token}
 						<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/members">Mitglieder</a></li>
 						<li><a class="btn  btn-filled-surface mx-2 text-2xl" href="/teams">Teams</a></li>
+						{#if $credsStore.is_admin}
+							<li>
+								<a class="btn  btn-filled-surface mx-2 text-2xl" href="/history">Geschichte</a>
+							</li>
+						{/if}
 					{/if}
 					<li>
 						{#if !$credsStore || !$credsStore.token}

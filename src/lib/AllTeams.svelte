@@ -41,26 +41,20 @@
 	async function selectRow(row) {
 		let team = { ...row };
 		if (!team.with_details) return;
-		teamsState.set({
-			search: $dataTableModel.search,
-			withDetails: $dataTableModel.withDetails,
-			teams: $dataTableModel.source,
-			team: team,
-			offset: $dataTableModel.pagination.offset,
-			limit: $dataTableModel.pagination.limit
-		});
+		$teamsState.search = $dataTableModel.search;
+		$teamsState.withDetails = $dataTableModel.withDetails;
+		$teamsState.team = team;
+		$teamsState.offset = $dataTableModel.pagination.offset;
+		$teamsState.limit = $dataTableModel.pagination.limit;
 		await goto('/team/' + team.id + '?from=/teams');
 	}
 
 	async function newTeam() {
-		teamsState.set({
-			search: $dataTableModel.search,
-			withDetails: $dataTableModel.withDetails,
-			teams: $dataTableModel.source,
-			team: null,
-			offset: $dataTableModel.pagination.offset,
-			limit: $dataTableModel.pagination.limit
-		});
+		$teamsState.search = $dataTableModel.search;
+		$teamsState.withDetails = $dataTableModel.withDetails;
+		$teamsState.team = null;
+		$teamsState.offset = $dataTableModel.pagination.offset;
+		$teamsState.limit = $dataTableModel.pagination.limit;
 		await goto('/newteam?from=/teams');
 	}
 
